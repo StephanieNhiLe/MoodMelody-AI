@@ -4,7 +4,7 @@
 
 1. Navigate to Backend directory
 ```
-cd Backedn
+cd Backend
 ```
 2. Install required packages and libraries
 ```
