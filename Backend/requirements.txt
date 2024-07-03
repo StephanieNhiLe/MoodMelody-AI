@@ -1,2 +1,4 @@
 Flask
 requests
+assemblyai
+python-dotenv

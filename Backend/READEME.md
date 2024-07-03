@@ -10,7 +10,8 @@ cd Backend
 ```
 pip install -r requirements.txt
 ```
-3. Run server using,
+3. Rename .env_copy to .env and add your assemblyai API key (you can get it by signing up to https://www.assemblyai.com/)
+4. Run server using,
 ```
 python -m flask run
 ```
