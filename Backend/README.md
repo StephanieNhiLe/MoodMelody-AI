@@ -1,6 +1,38 @@
-# Backend
+# Setup Frontend (ReactJS)
 
-## Setup
+1. Before you begin, ensure you have met the following requirements:
+
+- [Node.js](https://nodejs.org/)
+- [Yarn](https://classic.yarnpkg.com/lang/en/docs/install/#mac-stable) or [Npm](https://docs.npmjs.com/downloading-and-installing-node-js-and-npm) (Choose one of them) as main package manager
+
+2. Install dependencies
+
+```bash
+npm install
+```
+
+3. Runs the app in the development mode.
+
+```bash
+npm start
+```
+
+Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
+
+The page will reload if you make edits.<br>
+You will also see any logs, warnings, errors in the console.
+
+Builds the app for production to the `build` folder.<br>
+
+```bash
+npm build
+```
+
+It bundles React in production mode and optimizes the build for the best performance.
+
+The build is minified and the filenames include the hashes.<br>
+
+# Setup Backend (Flask)
 
 1. Navigate to Backend directory
 ```
