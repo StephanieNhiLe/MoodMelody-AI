@@ -2,17 +2,13 @@ import React, { useState } from 'react';
 import { Box, Typography, Button, TextField, ToggleButton, ToggleButtonGroup, Paper, IconButton } from '@mui/material';
 import { styled } from '@mui/material/styles';
 import Header from './Header';
-import CloudUploadIcon from '@mui/icons-material/CloudUpload';
-import VideoLabelIcon from '@mui/icons-material/VideoLabel';
+import CloudUploadIcon from '@mui/icons-material/CloudUpload';  // Importing the cloud upload icon
 
 const StyledToggleButtonGroup = styled(ToggleButtonGroup)(({ theme }) => ({
   backgroundColor: 'transparent',
-  borderRadius: 20,
-  overflow: 'hidden',
   '& .MuiToggleButtonGroup-grouped': {
-    margin: 0,
-    border: 'none',
-    flex: 1,
+    margin: theme.spacing(1),
+    border: '1px solid white',
     '&.Mui-selected': {
       backgroundColor: 'rgba(255, 255, 255, 0.2)',
       color: 'white',
@@ -29,7 +25,7 @@ const VideoPlaceholder = styled(Paper)(({ theme }) => ({
   flex: 1,
   backgroundColor: 'rgba(255, 255, 255, 0.1)',
   border: '1px solid white',
-  borderRadius: 20,
+  margin: theme.spacing(2),
   display: 'flex',
   alignItems: 'center',
   justifyContent: 'center',
@@ -37,7 +33,7 @@ const VideoPlaceholder = styled(Paper)(({ theme }) => ({
 
 const StyledTextField = styled(TextField)({
   '& .MuiOutlinedInput-root': {
-    borderRadius: 20,
+    borderRadius: 20,  // Rounded corners for the input
     borderColor: 'white',
     color: 'white',
     '& fieldset': {
@@ -46,14 +42,13 @@ const StyledTextField = styled(TextField)({
     '& .MuiInputBase-input': {
       color: 'white',
     },
-    paddingRight: '36px',
   },
 });
 
 const TabButton = styled(IconButton)({
   position: 'absolute',
   right: 10,
-  top: 'calc(50% - 14px)',
+  top: 'calc(50% - 14px)',  // Center vertically
   color: 'white',
   backgroundColor: 'rgba(255, 255, 255, 0.2)',
   borderRadius: '4px',
@@ -73,7 +68,7 @@ const CreateMusicPage = () => {
     <Box
       sx={{
         minHeight: '100vh',
-        bgcolor: '#0A1929',
+        bgcolor: '#0A1929',  // Dark bluish color
         color: 'white',
         p: 0,
         m: 0,
@@ -83,35 +78,46 @@ const CreateMusicPage = () => {
       }}
     >
       <Header />
-      <Typography
-        variant="h3"
-        sx={{
-          mt: 8,
-          mb: 2,
-          background: 'linear-gradient(45deg, green, white)',
-          WebkitBackgroundClip: 'text',
-          WebkitTextFillColor: 'transparent',
-        }}
-      >
+      <Typography variant="h3" sx={{ mt: 8, mb: 2, background: 'linear-gradient(45deg, green, white)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
         Create Your Music
       </Typography>
       <Box sx={{ display: 'flex', width: '80%', justifyContent: 'space-between', px: 2 }}>
-        <Box sx={{ width: '50%', display: 'flex', flexDirection: 'column', pr: 2, position: 'relative' }}>
+        <Box sx={{ width: '50%', display: 'flex', flexDirection: 'column', pr: 2 }}>
           <StyledToggleButtonGroup
             exclusive
             onChange={handleUploadChange}
             aria-label="Video upload choice"
             fullWidth
           >
-            <ToggleButton value="upload" startIcon={<CloudUploadIcon />}>Upload video</ToggleButton>
-            <ToggleButton value="url" startIcon={<VideoLabelIcon />}>Paste a video URL</ToggleButton>
+            <ToggleButton value="upload" startIcon={<CloudUploadIcon />}>
+              Upload video
+            </ToggleButton>
+            <ToggleButton value="url">
+              Paste a video URL
+            </ToggleButton>
           </StyledToggleButtonGroup>
+          {uploadType === 'upload' ? (
+            <StyledTextField
+              variant="outlined"
+              type="file"
+              InputLabelProps={{ shrink: true }}
+              fullWidth
+            />
+          ) : (
+            <StyledTextField
+              variant="outlined"
+              fullWidth
+              value={videoUrl}
+              onChange={(e) => setVideoUrl(e.target.value)}
+              placeholder="Paste a video URL"
+            />
+          )}
           <StyledTextField
             variant="outlined"
             fullWidth
             multiline
             rows={4}
-            placeholder='Type your word here...'
+            placeholder="Type your word here..."
             InputProps={{
               endAdornment: (
                 <TabButton size="small">
