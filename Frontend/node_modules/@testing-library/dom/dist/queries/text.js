@@ -45,11 +45,10 @@ const getMissingError = (c, text, options = {}) => {
   });
   const normalizedText = matchNormalizer(text.toString());
   const isNormalizedDifferent = normalizedText !== text.toString();
-  const isCustomSelector = (selector != null ? selector : '*') !== '*';
+  const isCustomSelector = (selector ?? '*') !== '*';
   return `Unable to find an element with the text: ${isNormalizedDifferent ? `${normalizedText} (normalized from '${text}')` : text}${isCustomSelector ? `, which matches selector '${selector}'` : ''}. This could be because the text is broken up by multiple elements. In this case, you can provide a function for your text matcher to make your matcher more flexible.`;
 };
-const queryAllByTextWithSuggestions = (0, _queryHelpers.wrapAllByQueryWithSuggestion)(queryAllByText, queryAllByText.name, 'queryAll');
-exports.queryAllByText = queryAllByTextWithSuggestions;
+const queryAllByTextWithSuggestions = exports.queryAllByText = (0, _queryHelpers.wrapAllByQueryWithSuggestion)(queryAllByText, queryAllByText.name, 'queryAll');
 const [queryByText, getAllByText, getByText, findAllByText, findByText] = (0, _allUtils.buildQueries)(queryAllByText, getMultipleError, getMissingError);
 exports.findByText = findByText;
 exports.findAllByText = findAllByText;

@@ -7,10 +7,7 @@ exports.queryByTitle = exports.queryAllByTitle = exports.getByTitle = exports.ge
 var _queryHelpers = require("../query-helpers");
 var _helpers = require("../helpers");
 var _allUtils = require("./all-utils");
-const isSvgTitle = node => {
-  var _node$parentElement;
-  return node.tagName.toLowerCase() === 'title' && ((_node$parentElement = node.parentElement) == null ? void 0 : _node$parentElement.tagName.toLowerCase()) === 'svg';
-};
+const isSvgTitle = node => node.tagName.toLowerCase() === 'title' && node.parentElement?.tagName.toLowerCase() === 'svg';
 const queryAllByTitle = (container, text, {
   exact = true,
   collapseWhitespace,
@@ -28,8 +25,7 @@ const queryAllByTitle = (container, text, {
 };
 const getMultipleError = (c, title) => `Found multiple elements with the title: ${title}.`;
 const getMissingError = (c, title) => `Unable to find an element with the title: ${title}.`;
-const queryAllByTitleWithSuggestions = (0, _queryHelpers.wrapAllByQueryWithSuggestion)(queryAllByTitle, queryAllByTitle.name, 'queryAll');
-exports.queryAllByTitle = queryAllByTitleWithSuggestions;
+const queryAllByTitleWithSuggestions = exports.queryAllByTitle = (0, _queryHelpers.wrapAllByQueryWithSuggestion)(queryAllByTitle, queryAllByTitle.name, 'queryAll');
 const [queryByTitle, getAllByTitle, getByTitle, findAllByTitle, findByTitle] = (0, _allUtils.buildQueries)(queryAllByTitle, getMultipleError, getMissingError);
 exports.findByTitle = findByTitle;
 exports.findAllByTitle = findAllByTitle;

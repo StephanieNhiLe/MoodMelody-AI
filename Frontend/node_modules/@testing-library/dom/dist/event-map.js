@@ -4,7 +4,7 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 exports.eventMap = exports.eventAliasMap = void 0;
-const eventMap = {
+const eventMap = exports.eventMap = {
   // Clipboard Events
   copy: {
     EventType: 'ClipboardEvent',
@@ -690,10 +690,22 @@ const eventMap = {
       bubbles: false,
       cancelable: false
     }
+  },
+  pageHide: {
+    EventType: 'PageTransitionEvent',
+    defaultInit: {
+      bubbles: true,
+      cancelable: true
+    }
+  },
+  pageShow: {
+    EventType: 'PageTransitionEvent',
+    defaultInit: {
+      bubbles: true,
+      cancelable: true
+    }
   }
 };
-exports.eventMap = eventMap;
-const eventAliasMap = {
+const eventAliasMap = exports.eventAliasMap = {
   doubleClick: 'dblClick'
 };
-exports.eventAliasMap = eventAliasMap;

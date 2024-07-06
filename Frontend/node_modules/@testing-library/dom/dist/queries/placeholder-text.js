@@ -13,8 +13,7 @@ const queryAllByPlaceholderText = (...args) => {
 };
 const getMultipleError = (c, text) => `Found multiple elements with the placeholder text of: ${text}`;
 const getMissingError = (c, text) => `Unable to find an element with the placeholder text of: ${text}`;
-const queryAllByPlaceholderTextWithSuggestions = (0, _queryHelpers.wrapAllByQueryWithSuggestion)(queryAllByPlaceholderText, queryAllByPlaceholderText.name, 'queryAll');
-exports.queryAllByPlaceholderText = queryAllByPlaceholderTextWithSuggestions;
+const queryAllByPlaceholderTextWithSuggestions = exports.queryAllByPlaceholderText = (0, _queryHelpers.wrapAllByQueryWithSuggestion)(queryAllByPlaceholderText, queryAllByPlaceholderText.name, 'queryAll');
 const [queryByPlaceholderText, getAllByPlaceholderText, getByPlaceholderText, findAllByPlaceholderText, findByPlaceholderText] = (0, _allUtils.buildQueries)(queryAllByPlaceholderText, getMultipleError, getMissingError);
 exports.findByPlaceholderText = findByPlaceholderText;
 exports.findAllByPlaceholderText = findAllByPlaceholderText;

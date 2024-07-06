@@ -18,7 +18,9 @@ function waitFor(callback, {
   stackTraceError,
   interval = 50,
   onTimeout = error => {
-    error.message = (0, _config.getConfig)().getElementError(error.message, container).message;
+    Object.defineProperty(error, 'message', {
+      value: (0, _config.getConfig)().getElementError(error.message, container).message
+    });
     return error;
   },
   mutationObserverOptions = {
@@ -54,23 +56,6 @@ function waitFor(callback, {
           reject(error);
           return;
         }
-        // we *could* (maybe should?) use `advanceTimersToNextTimer` but it's
-        // possible that could make this loop go on forever if someone is using
-        // third party code that's setting up recursive timers so rapidly that
-        // the user's timer's don't get a chance to resolve. So we'll advance
-        // by an interval instead. (We have a test for this case).
-        advanceTimersWrapper(() => {
-          jest.advanceTimersByTime(interval);
-        });
-
-        // It's really important that checkCallback is run *before* we flush
-        // in-flight promises. To be honest, I'm not sure why, and I can't quite
-        // think of a way to reproduce the problem in a test, but I spent
-        // an entire day banging my head against a wall on this.
-        checkCallback();
-        if (finished) {
-          break;
-        }
 
         // In this rare case, we *need* to wait for in-flight promises
         // to resolve before continuing. We don't need to take advantage
@@ -78,11 +63,23 @@ function waitFor(callback, {
         // https://stackoverflow.com/a/59243586/971592
         // eslint-disable-next-line no-await-in-loop
         await advanceTimersWrapper(async () => {
-          await new Promise(r => {
-            setTimeout(r, 0);
-            jest.advanceTimersByTime(0);
-          });
+          // we *could* (maybe should?) use `advanceTimersToNextTimer` but it's
+          // possible that could make this loop go on forever if someone is using
+          // third party code that's setting up recursive timers so rapidly that
+          // the user's timer's don't get a chance to resolve. So we'll advance
+          // by an interval instead. (We have a test for this case).
+          jest.advanceTimersByTime(interval);
         });
+
+        // Could have timed-out
+        if (finished) {
+          break;
+        }
+        // It's really important that checkCallback is run *before* we flush
+        // in-flight promises. To be honest, I'm not sure why, and I can't quite
+        // think of a way to reproduce the problem in a test, but I spent
+        // an entire day banging my head against a wall on this.
+        checkCallback();
       }
     } else {
       try {
@@ -125,7 +122,7 @@ function waitFor(callback, {
       if (promiseStatus === 'pending') return;
       try {
         const result = (0, _config.runWithExpensiveErrorDiagnosticsDisabled)(callback);
-        if (typeof (result == null ? void 0 : result.then) === 'function') {
+        if (typeof result?.then === 'function') {
           promiseStatus = 'pending';
           result.then(resolvedValue => {
             promiseStatus = 'resolved';

@@ -10,8 +10,7 @@ exports.getWindowFromNode = getWindowFromNode;
 exports.jestFakeTimersAreEnabled = jestFakeTimersAreEnabled;
 // Constant node.nodeType for text nodes, see:
 // https://developer.mozilla.org/en-US/docs/Web/API/Node/nodeType#Node_type_constants
-const TEXT_NODE = 3;
-exports.TEXT_NODE = TEXT_NODE;
+const TEXT_NODE = exports.TEXT_NODE = 3;
 function jestFakeTimersAreEnabled() {
   /* istanbul ignore else */
   // eslint-disable-next-line
@@ -20,6 +19,7 @@ function jestFakeTimersAreEnabled() {
       // legacy timers
       setTimeout._isMockFunction === true ||
       // modern timers
+      // eslint-disable-next-line prefer-object-has-own -- not supported by our support matrix
       Object.prototype.hasOwnProperty.call(setTimeout, 'clock')
     );
   }

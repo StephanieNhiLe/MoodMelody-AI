@@ -15,8 +15,7 @@ const queryAllByAltText = (container, alt, options = {}) => {
 };
 const getMultipleError = (c, alt) => `Found multiple elements with the alt text: ${alt}`;
 const getMissingError = (c, alt) => `Unable to find an element with the alt text: ${alt}`;
-const queryAllByAltTextWithSuggestions = (0, _queryHelpers.wrapAllByQueryWithSuggestion)(queryAllByAltText, queryAllByAltText.name, 'queryAll');
-exports.queryAllByAltText = queryAllByAltTextWithSuggestions;
+const queryAllByAltTextWithSuggestions = exports.queryAllByAltText = (0, _queryHelpers.wrapAllByQueryWithSuggestion)(queryAllByAltText, queryAllByAltText.name, 'queryAll');
 const [queryByAltText, getAllByAltText, getByAltText, findAllByAltText, findByAltText] = (0, _allUtils.buildQueries)(queryAllByAltText, getMultipleError, getMissingError);
 exports.findByAltText = findByAltText;
 exports.findAllByAltText = findAllByAltText;

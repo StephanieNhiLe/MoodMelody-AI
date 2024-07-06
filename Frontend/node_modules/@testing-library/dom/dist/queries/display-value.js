@@ -31,8 +31,7 @@ const queryAllByDisplayValue = (container, value, {
 };
 const getMultipleError = (c, value) => `Found multiple elements with the display value: ${value}.`;
 const getMissingError = (c, value) => `Unable to find an element with the display value: ${value}.`;
-const queryAllByDisplayValueWithSuggestions = (0, _queryHelpers.wrapAllByQueryWithSuggestion)(queryAllByDisplayValue, queryAllByDisplayValue.name, 'queryAll');
-exports.queryAllByDisplayValue = queryAllByDisplayValueWithSuggestions;
+const queryAllByDisplayValueWithSuggestions = exports.queryAllByDisplayValue = (0, _queryHelpers.wrapAllByQueryWithSuggestion)(queryAllByDisplayValue, queryAllByDisplayValue.name, 'queryAll');
 const [queryByDisplayValue, getAllByDisplayValue, getByDisplayValue, findAllByDisplayValue, findByDisplayValue] = (0, _allUtils.buildQueries)(queryAllByDisplayValue, getMultipleError, getMissingError);
 exports.findByDisplayValue = findByDisplayValue;
 exports.findAllByDisplayValue = findAllByDisplayValue;

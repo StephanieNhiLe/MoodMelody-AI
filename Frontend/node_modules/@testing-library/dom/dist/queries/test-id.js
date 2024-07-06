@@ -14,8 +14,7 @@ const queryAllByTestId = (...args) => {
 };
 const getMultipleError = (c, id) => `Found multiple elements by: [${getTestIdAttribute()}="${id}"]`;
 const getMissingError = (c, id) => `Unable to find an element by: [${getTestIdAttribute()}="${id}"]`;
-const queryAllByTestIdWithSuggestions = (0, _queryHelpers.wrapAllByQueryWithSuggestion)(queryAllByTestId, queryAllByTestId.name, 'queryAll');
-exports.queryAllByTestId = queryAllByTestIdWithSuggestions;
+const queryAllByTestIdWithSuggestions = exports.queryAllByTestId = (0, _queryHelpers.wrapAllByQueryWithSuggestion)(queryAllByTestId, queryAllByTestId.name, 'queryAll');
 const [queryByTestId, getAllByTestId, getByTestId, findAllByTestId, findByTestId] = (0, _allUtils.buildQueries)(queryAllByTestId, getMultipleError, getMissingError);
 exports.findByTestId = findByTestId;
 exports.findAllByTestId = findAllByTestId;

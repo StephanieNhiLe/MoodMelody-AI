@@ -14,7 +14,6 @@ const normalize = (0, _matches.getDefaultNormalizer)();
 function escapeRegExp(string) {
   return string.replace(/[.*+\-?^${}()|[\]\\]/g, '\\$&'); // $& means the whole matched string
 }
-
 function getRegExpMatcher(string) {
   return new RegExp(escapeRegExp(string.toLowerCase()), 'i');
 }
@@ -59,14 +58,13 @@ function canSuggest(currentMethod, requestedMethod, data) {
   return data && (!requestedMethod || requestedMethod.toLowerCase() === currentMethod.toLowerCase());
 }
 function getSuggestedQuery(element, variant = 'get', method) {
-  var _element$getAttribute, _getImplicitAriaRoles;
   // don't create suggestions for script and style elements
   if (element.matches((0, _config.getConfig)().defaultIgnore)) {
     return undefined;
   }
 
   //We prefer to suggest something else if the role is generic
-  const role = (_element$getAttribute = element.getAttribute('role')) != null ? _element$getAttribute : (_getImplicitAriaRoles = (0, _roleHelpers.getImplicitAriaRoles)(element)) == null ? void 0 : _getImplicitAriaRoles[0];
+  const role = element.getAttribute('role') ?? (0, _roleHelpers.getImplicitAriaRoles)(element)?.[0];
   if (role !== 'generic' && canSuggest('Role', method, role)) {
     return makeSuggestion('Role', element, role, {
       variant,

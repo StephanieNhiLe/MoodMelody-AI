@@ -3,11 +3,16 @@
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
+exports.computeAriaBusy = computeAriaBusy;
 exports.computeAriaChecked = computeAriaChecked;
 exports.computeAriaCurrent = computeAriaCurrent;
 exports.computeAriaExpanded = computeAriaExpanded;
 exports.computeAriaPressed = computeAriaPressed;
 exports.computeAriaSelected = computeAriaSelected;
+exports.computeAriaValueMax = computeAriaValueMax;
+exports.computeAriaValueMin = computeAriaValueMin;
+exports.computeAriaValueNow = computeAriaValueNow;
+exports.computeAriaValueText = computeAriaValueText;
 exports.computeHeadingLevel = computeHeadingLevel;
 exports.getImplicitAriaRoles = getImplicitAriaRoles;
 exports.getRoles = getRoles;
@@ -95,13 +100,16 @@ function buildElementRoleList(elementRolesMap) {
       constraints = []
     }) => {
       const shouldNotExist = constraints.indexOf('undefined') !== -1;
-      if (shouldNotExist) {
-        return `:not([${attributeName}])`;
-      } else if (value) {
+      const shouldBeNonEmpty = constraints.indexOf('set') !== -1;
+      const hasExplicitValue = typeof value !== 'undefined';
+      if (hasExplicitValue) {
         return `[${attributeName}="${value}"]`;
-      } else {
-        return `[${attributeName}]`;
+      } else if (shouldNotExist) {
+        return `:not([${attributeName}])`;
+      } else if (shouldBeNonEmpty) {
+        return `[${attributeName}]:not([${attributeName}=""])`;
       }
+      return `[${attributeName}]`;
     }).join('')}`;
   }
   function getSelectorSpecificity({
@@ -226,6 +234,15 @@ function computeAriaSelected(element) {
 
 /**
  * @param {Element} element -
+ * @returns {boolean} -
+ */
+function computeAriaBusy(element) {
+  // https://www.w3.org/TR/wai-aria-1.1/#aria-busy
+  return element.getAttribute('aria-busy') === 'true';
+}
+
+/**
+ * @param {Element} element -
  * @returns {boolean | undefined} - false/true if (not)checked, undefined if not checked-able
  */
 function computeAriaChecked(element) {
@@ -257,9 +274,8 @@ function computeAriaPressed(element) {
  * @returns {boolean | string | null} -
  */
 function computeAriaCurrent(element) {
-  var _ref, _checkBooleanAttribut;
   // https://www.w3.org/TR/wai-aria-1.1/#aria-current
-  return (_ref = (_checkBooleanAttribut = checkBooleanAttribute(element, 'aria-current')) != null ? _checkBooleanAttribut : element.getAttribute('aria-current')) != null ? _ref : false;
+  return checkBooleanAttribute(element, 'aria-current') ?? element.getAttribute('aria-current') ?? false;
 }
 
 /**
@@ -300,4 +316,40 @@ function computeHeadingLevel(element) {
   // https://www.w3.org/TR/wai-aria-1.2/#aria-level
   const ariaLevelAttribute = element.getAttribute('aria-level') && Number(element.getAttribute('aria-level'));
   return ariaLevelAttribute || implicitHeadingLevels[element.tagName];
+}
+
+/**
+ * @param {Element} element -
+ * @returns {number | undefined} -
+ */
+function computeAriaValueNow(element) {
+  const valueNow = element.getAttribute('aria-valuenow');
+  return valueNow === null ? undefined : +valueNow;
+}
+
+/**
+ * @param {Element} element -
+ * @returns {number | undefined} -
+ */
+function computeAriaValueMax(element) {
+  const valueMax = element.getAttribute('aria-valuemax');
+  return valueMax === null ? undefined : +valueMax;
+}
+
+/**
+ * @param {Element} element -
+ * @returns {number | undefined} -
+ */
+function computeAriaValueMin(element) {
+  const valueMin = element.getAttribute('aria-valuemin');
+  return valueMin === null ? undefined : +valueMin;
+}
+
+/**
+ * @param {Element} element -
+ * @returns {string | undefined} -
+ */
+function computeAriaValueText(element) {
+  const valueText = element.getAttribute('aria-valuetext');
+  return valueText === null ? undefined : valueText;
 }

@@ -59,17 +59,25 @@ const queryAllByLabelText = (container, text, {
       selector
     });
     labelList.filter(label => Boolean(label.formControl)).forEach(label => {
-      if (matcher(label.content, label.formControl, text, matchNormalizer) && label.formControl) labelledElements.push(label.formControl);
+      if (matcher(label.content, label.formControl, text, matchNormalizer) && label.formControl) {
+        labelledElements.push(label.formControl);
+      }
     });
     const labelsValue = labelList.filter(label => Boolean(label.content)).map(label => label.content);
-    if (matcher(labelsValue.join(' '), labelledElement, text, matchNormalizer)) labelledElements.push(labelledElement);
+    if (matcher(labelsValue.join(' '), labelledElement, text, matchNormalizer)) {
+      labelledElements.push(labelledElement);
+    }
     if (labelsValue.length > 1) {
       labelsValue.forEach((labelValue, index) => {
-        if (matcher(labelValue, labelledElement, text, matchNormalizer)) labelledElements.push(labelledElement);
+        if (matcher(labelValue, labelledElement, text, matchNormalizer)) {
+          labelledElements.push(labelledElement);
+        }
         const labelsFiltered = [...labelsValue];
         labelsFiltered.splice(index, 1);
         if (labelsFiltered.length > 1) {
-          if (matcher(labelsFiltered.join(' '), labelledElement, text, matchNormalizer)) labelledElements.push(labelledElement);
+          if (matcher(labelsFiltered.join(' '), labelledElement, text, matchNormalizer)) {
+            labelledElements.push(labelledElement);
+          }
         }
       });
     }
@@ -116,16 +124,10 @@ function getTagNameOfElementAssociatedWithLabelViaFor(container, label) {
 
 // the reason mentioned above is the same reason we're not using buildQueries
 const getMultipleError = (c, text) => `Found multiple elements with the text of: ${text}`;
-const queryByLabelText = (0, _allUtils.wrapSingleQueryWithSuggestion)((0, _allUtils.makeSingleQuery)(queryAllByLabelText, getMultipleError), queryAllByLabelText.name, 'query');
-exports.queryByLabelText = queryByLabelText;
+const queryByLabelText = exports.queryByLabelText = (0, _allUtils.wrapSingleQueryWithSuggestion)((0, _allUtils.makeSingleQuery)(queryAllByLabelText, getMultipleError), queryAllByLabelText.name, 'query');
 const getByLabelText = (0, _allUtils.makeSingleQuery)(getAllByLabelText, getMultipleError);
-const findAllByLabelText = (0, _allUtils.makeFindQuery)((0, _allUtils.wrapAllByQueryWithSuggestion)(getAllByLabelText, getAllByLabelText.name, 'findAll'));
-exports.findAllByLabelText = findAllByLabelText;
-const findByLabelText = (0, _allUtils.makeFindQuery)((0, _allUtils.wrapSingleQueryWithSuggestion)(getByLabelText, getAllByLabelText.name, 'find'));
-exports.findByLabelText = findByLabelText;
-const getAllByLabelTextWithSuggestions = (0, _allUtils.wrapAllByQueryWithSuggestion)(getAllByLabelText, getAllByLabelText.name, 'getAll');
-exports.getAllByLabelText = getAllByLabelTextWithSuggestions;
-const getByLabelTextWithSuggestions = (0, _allUtils.wrapSingleQueryWithSuggestion)(getByLabelText, getAllByLabelText.name, 'get');
-exports.getByLabelText = getByLabelTextWithSuggestions;
-const queryAllByLabelTextWithSuggestions = (0, _allUtils.wrapAllByQueryWithSuggestion)(queryAllByLabelText, queryAllByLabelText.name, 'queryAll');
-exports.queryAllByLabelText = queryAllByLabelTextWithSuggestions;
+const findAllByLabelText = exports.findAllByLabelText = (0, _allUtils.makeFindQuery)((0, _allUtils.wrapAllByQueryWithSuggestion)(getAllByLabelText, getAllByLabelText.name, 'findAll'));
+const findByLabelText = exports.findByLabelText = (0, _allUtils.makeFindQuery)((0, _allUtils.wrapSingleQueryWithSuggestion)(getByLabelText, getAllByLabelText.name, 'find'));
+const getAllByLabelTextWithSuggestions = exports.getAllByLabelText = (0, _allUtils.wrapAllByQueryWithSuggestion)(getAllByLabelText, getAllByLabelText.name, 'getAll');
+const getByLabelTextWithSuggestions = exports.getByLabelText = (0, _allUtils.wrapSingleQueryWithSuggestion)(getByLabelText, getAllByLabelText.name, 'get');
+const queryAllByLabelTextWithSuggestions = exports.queryAllByLabelText = (0, _allUtils.wrapAllByQueryWithSuggestion)(queryAllByLabelText, queryAllByLabelText.name, 'queryAll');

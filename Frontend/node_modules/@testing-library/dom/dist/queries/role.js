@@ -10,57 +10,58 @@ var _roleHelpers = require("../role-helpers");
 var _queryHelpers = require("../query-helpers");
 var _helpers = require("../helpers");
 var _allUtils = require("./all-utils");
-function queryAllByRole(container, role, {
-  exact = true,
-  collapseWhitespace,
+/* eslint-disable complexity */
+
+const queryAllByRole = (container, role, {
   hidden = (0, _allUtils.getConfig)().defaultHidden,
   name,
   description,
-  trim,
-  normalizer,
   queryFallbacks = false,
   selected,
+  busy,
   checked,
   pressed,
   current,
   level,
-  expanded
-} = {}) {
+  expanded,
+  value: {
+    now: valueNow,
+    min: valueMin,
+    max: valueMax,
+    text: valueText
+  } = {}
+} = {}) => {
   (0, _helpers.checkContainerType)(container);
-  const matcher = exact ? _allUtils.matches : _allUtils.fuzzyMatches;
-  const matchNormalizer = (0, _allUtils.makeNormalizer)({
-    collapseWhitespace,
-    trim,
-    normalizer
-  });
   if (selected !== undefined) {
-    var _allRoles$get;
     // guard against unknown roles
-    if (((_allRoles$get = _ariaQuery.roles.get(role)) == null ? void 0 : _allRoles$get.props['aria-selected']) === undefined) {
+    if (_ariaQuery.roles.get(role)?.props['aria-selected'] === undefined) {
       throw new Error(`"aria-selected" is not supported on role "${role}".`);
     }
   }
-  if (checked !== undefined) {
-    var _allRoles$get2;
+  if (busy !== undefined) {
     // guard against unknown roles
-    if (((_allRoles$get2 = _ariaQuery.roles.get(role)) == null ? void 0 : _allRoles$get2.props['aria-checked']) === undefined) {
+    if (_ariaQuery.roles.get(role)?.props['aria-busy'] === undefined) {
+      throw new Error(`"aria-busy" is not supported on role "${role}".`);
+    }
+  }
+  if (checked !== undefined) {
+    // guard against unknown roles
+    if (_ariaQuery.roles.get(role)?.props['aria-checked'] === undefined) {
       throw new Error(`"aria-checked" is not supported on role "${role}".`);
     }
   }
   if (pressed !== undefined) {
-    var _allRoles$get3;
     // guard against unknown roles
-    if (((_allRoles$get3 = _ariaQuery.roles.get(role)) == null ? void 0 : _allRoles$get3.props['aria-pressed']) === undefined) {
+    if (_ariaQuery.roles.get(role)?.props['aria-pressed'] === undefined) {
       throw new Error(`"aria-pressed" is not supported on role "${role}".`);
     }
   }
   if (current !== undefined) {
-    var _allRoles$get4;
     /* istanbul ignore next */
     // guard against unknown roles
     // All currently released ARIA versions support `aria-current` on all roles.
-    // Leaving this for symetry and forward compatibility
-    if (((_allRoles$get4 = _ariaQuery.roles.get(role)) == null ? void 0 : _allRoles$get4.props['aria-current']) === undefined) {
+    // Leaving this for symmetry and forward compatibility
+    if (_ariaQuery.roles.get(role)?.props['aria-current'] === undefined) {
       throw new Error(`"aria-current" is not supported on role "${role}".`);
     }
   }
@@ -70,10 +71,33 @@ function queryAllByRole(container, role, {
       throw new Error(`Role "${role}" cannot have "level" property.`);
     }
   }
-  if (expanded !== undefined) {
-    var _allRoles$get5;
+  if (valueNow !== undefined) {
     // guard against unknown roles
-    if (((_allRoles$get5 = _ariaQuery.roles.get(role)) == null ? void 0 : _allRoles$get5.props['aria-expanded']) === undefined) {
+    if (_ariaQuery.roles.get(role)?.props['aria-valuenow'] === undefined) {
+      throw new Error(`"aria-valuenow" is not supported on role "${role}".`);
+    }
+  }
+  if (valueMax !== undefined) {
+    // guard against unknown roles
+    if (_ariaQuery.roles.get(role)?.props['aria-valuemax'] === undefined) {
+      throw new Error(`"aria-valuemax" is not supported on role "${role}".`);
+    }
+  }
+  if (valueMin !== undefined) {
+    // guard against unknown roles
+    if (_ariaQuery.roles.get(role)?.props['aria-valuemin'] === undefined) {
+      throw new Error(`"aria-valuemin" is not supported on role "${role}".`);
+    }
+  }
+  if (valueText !== undefined) {
+    // guard against unknown roles
+    if (_ariaQuery.roles.get(role)?.props['aria-valuetext'] === undefined) {
+      throw new Error(`"aria-valuetext" is not supported on role "${role}".`);
+    }
+  }
+  if (expanded !== undefined) {
+    // guard against unknown roles
+    if (_ariaQuery.roles.get(role)?.props['aria-expanded'] === undefined) {
       throw new Error(`"aria-expanded" is not supported on role "${role}".`);
     }
   }
@@ -86,26 +110,27 @@ function queryAllByRole(container, role, {
   }
   return Array.from(container.querySelectorAll(
   // Only query elements that can be matched by the following filters
-  makeRoleSelector(role, exact, normalizer ? matchNormalizer : undefined))).filter(node => {
+  makeRoleSelector(role))).filter(node => {
     const isRoleSpecifiedExplicitly = node.hasAttribute('role');
     if (isRoleSpecifiedExplicitly) {
       const roleValue = node.getAttribute('role');
       if (queryFallbacks) {
-        return roleValue.split(' ').filter(Boolean).some(text => matcher(text, node, role, matchNormalizer));
+        return roleValue.split(' ').filter(Boolean).some(roleAttributeToken => roleAttributeToken === role);
       }
-      // if a custom normalizer is passed then let normalizer handle the role value
-      if (normalizer) {
-        return matcher(roleValue, node, role, matchNormalizer);
-      }
-      // other wise only send the first word to match
-      const [firstWord] = roleValue.split(' ');
-      return matcher(firstWord, node, role, matchNormalizer);
+      // other wise only send the first token to match
+      const [firstRoleAttributeToken] = roleValue.split(' ');
+      return firstRoleAttributeToken === role;
     }
     const implicitRoles = (0, _roleHelpers.getImplicitAriaRoles)(node);
-    return implicitRoles.some(implicitRole => matcher(implicitRole, node, role, matchNormalizer));
+    return implicitRoles.some(implicitRole => {
+      return implicitRole === role;
+    });
   }).filter(element => {
     if (selected !== undefined) {
       return selected === (0, _roleHelpers.computeAriaSelected)(element);
+    }
+    if (busy !== undefined) {
+      return busy === (0, _roleHelpers.computeAriaBusy)(element);
     }
     if (checked !== undefined) {
       return checked === (0, _roleHelpers.computeAriaChecked)(element);
@@ -121,6 +146,22 @@ function queryAllByRole(container, role, {
     }
     if (level !== undefined) {
       return level === (0, _roleHelpers.computeHeadingLevel)(element);
+    }
+    if (valueNow !== undefined || valueMax !== undefined || valueMin !== undefined || valueText !== undefined) {
+      let valueMatches = true;
+      if (valueNow !== undefined) {
+        valueMatches &&= valueNow === (0, _roleHelpers.computeAriaValueNow)(element);
+      }
+      if (valueMax !== undefined) {
+        valueMatches &&= valueMax === (0, _roleHelpers.computeAriaValueMax)(element);
+      }
+      if (valueMin !== undefined) {
+        valueMatches &&= valueMin === (0, _roleHelpers.computeAriaValueMin)(element);
+      }
+      if (valueText !== undefined) {
+        valueMatches &&= (0, _allUtils.matches)((0, _roleHelpers.computeAriaValueText)(element) ?? null, element, valueText, text => text);
+      }
+      return valueMatches;
     }
     // don't care if aria attributes are unspecified
     return true;
@@ -145,15 +186,10 @@ function queryAllByRole(container, role, {
       isSubtreeInaccessible: cachedIsSubtreeInaccessible
     }) === false : true;
   });
-}
-function makeRoleSelector(role, exact, customNormalizer) {
-  var _roleElements$get;
-  if (typeof role !== 'string') {
-    // For non-string role parameters we can not determine the implicitRoleSelectors.
-    return '*';
-  }
-  const explicitRoleSelector = exact && !customNormalizer ? `*[role~="${role}"]` : '*[role]';
-  const roleRelations = (_roleElements$get = _ariaQuery.roleElements.get(role)) != null ? _roleElements$get : new Set();
+};
+function makeRoleSelector(role) {
+  const explicitRoleSelector = `*[role~="${role}"]`;
+  const roleRelations = _ariaQuery.roleElements.get(role) ?? new Set();
   const implicitRoleSelectors = new Set(Array.from(roleRelations).map(({
     name
   }) => name));
@@ -229,8 +265,7 @@ Unable to find an ${hidden === false ? 'accessible ' : ''}element with the role 
 
 ${roleMessage}`.trim();
 };
-const queryAllByRoleWithSuggestions = (0, _queryHelpers.wrapAllByQueryWithSuggestion)(queryAllByRole, queryAllByRole.name, 'queryAll');
-exports.queryAllByRole = queryAllByRoleWithSuggestions;
+const queryAllByRoleWithSuggestions = exports.queryAllByRole = (0, _queryHelpers.wrapAllByQueryWithSuggestion)(queryAllByRole, queryAllByRole.name, 'queryAll');
 const [queryByRole, getAllByRole, getByRole, findAllByRole, findByRole] = (0, _allUtils.buildQueries)(queryAllByRole, getMultipleError, getMissingError);
 exports.findByRole = findByRole;
 exports.findAllByRole = findAllByRole;
