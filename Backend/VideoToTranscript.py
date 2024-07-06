@@ -10,5 +10,8 @@ class VideoToTranscript:
         self.transcriber = aai.Transcriber()
         
     def getTranscript(self, video):
-        transcript = self.transcriber.transcribe(video)
-        return transcript.text
+        try:
+            transcript = self.transcriber.transcribe(video)
+            return transcript.text
+        except Exception as e:
+            raise Exception(f"Error transcribing video: {str(e)}")
