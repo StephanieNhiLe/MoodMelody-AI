@@ -2,13 +2,13 @@ import React, { useState } from 'react';
 import { Box, Typography, Button, TextField, ToggleButton, ToggleButtonGroup, Paper, IconButton } from '@mui/material';
 import { styled } from '@mui/material/styles';
 import Header from './Header';
-import CloudUploadIcon from '@mui/icons-material/CloudUpload'; // For the upload button icon
-import VideoLabelIcon from '@mui/icons-material/VideoLabel'; // Icon for the video URL button
+import CloudUploadIcon from '@mui/icons-material/CloudUpload';
+import VideoLabelIcon from '@mui/icons-material/VideoLabel';
 
 const StyledToggleButtonGroup = styled(ToggleButtonGroup)(({ theme }) => ({
   backgroundColor: 'transparent',
-  borderRadius: 20, // Rounded corners
-  overflow: 'hidden', // Ensures the child elements do not overflow the rounded corners
+  borderRadius: 20,
+  overflow: 'hidden',
   '& .MuiToggleButtonGroup-grouped': {
     margin: 0,
     border: 'none',
@@ -46,14 +46,14 @@ const StyledTextField = styled(TextField)({
     '& .MuiInputBase-input': {
       color: 'white',
     },
-    paddingRight: '36px', // Padding for the tab button
+    paddingRight: '36px',
   },
 });
 
 const TabButton = styled(IconButton)({
   position: 'absolute',
   right: 10,
-  top: 'calc(50% - 14px)', // Center vertically
+  top: 'calc(50% - 14px)',
   color: 'white',
   backgroundColor: 'rgba(255, 255, 255, 0.2)',
   borderRadius: '4px',
@@ -70,7 +70,6 @@ const CreateMusicPage = () => {
   };
 
   return (
-<<<<<<< HEAD:Frontend/mood-melody/src/components/Header.js
     <Box
       sx={{
         minHeight: '100vh',
@@ -84,7 +83,16 @@ const CreateMusicPage = () => {
       }}
     >
       <Header />
-      <Typography variant="h3" sx={{ mt: 8, mb: 2, background: 'linear-gradient(45deg, green, white)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
+      <Typography
+        variant="h3"
+        sx={{
+          mt: 8,
+          mb: 2,
+          background: 'linear-gradient(45deg, green, white)',
+          WebkitBackgroundClip: 'text',
+          WebkitTextFillColor: 'transparent',
+        }}
+      >
         Create Your Music
       </Typography>
       <Box sx={{ display: 'flex', width: '80%', justifyContent: 'space-between', px: 2 }}>
@@ -114,22 +122,6 @@ const CreateMusicPage = () => {
           />
           <Button variant="contained" color="secondary" sx={{ alignSelf: 'start', mt: 2, borderRadius: 20 }}>
             Generate Video
-=======
-    <AppBar position="static" style={{ background: 'rgba(0, 0, 0, 0.8)' }}>
-      <Toolbar>
-        <Typography variant="h6" style={{ flexGrow: 1, color: 'white', textAlign: 'left' }}>
-          Mood Melody AI
-        </Typography>
-        <Box style={{ marginLeft: 'auto' }}>
-          <Link href="#" color="inherit" underline="none" style={{ margin: '0 20px' }}>
-            Home
-          </Link>
-          <Link href="#" color="inherit" underline="none" style={{ margin: '0 20px' }}>
-            Contact
-          </Link>
-          <Button variant="contained" color="secondary" style={{ marginLeft: '20px' }}>
-            Sign Up
->>>>>>> main:Frontend/src/components/Header.js
           </Button>
         </Box>
         <VideoPlaceholder>
