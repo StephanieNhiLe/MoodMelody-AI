@@ -1,4 +1,14 @@
 from transformers import pipeline
+import google.generativeai as genai
+import os
+from dotenv import load_dotenv
+load_dotenv()
+
+# Set up Gemini API
+genai.configure(api_key=os.getenv("GOOGLE_API_KEY"))
+
+# Set up the model
+model = genai.GenerativeModel('gemini-pro')
 
 class SentimentAnalyzer:
     def __init__(self):
@@ -12,10 +22,8 @@ class SentimentAnalyzer:
         score = result['score']
         return sentiment, score
 
-    def get_music_prompt(self, sentiment):
-        keywords = {
-            'positive': "uplifting beats and bright synths",
-            'negative': "melancholic piano and dark ambient",
-            'neutral': "ambient soundscapes and chill vibes"
-        }
-        return keywords.get(sentiment, "ambient soundscapes and chill vibes")
+    def get_music_prompt(self, sentiment): 
+        prompt = f"Generate a detailed music text prompt for a {sentiment} sentiment. Include specific musical elements, instruments, and mood descriptions."
+        response = model.generate_content(prompt)
+        return response.text
+    
