@@ -5,10 +5,21 @@ import Header from './Header';
 import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 
 const VideoPlaceholder = styled(Paper)(({ theme, fit }) => ({
-  width: fit === 'cover' ? '40%' : '100%', // Reduce width for portrait videos
+  width: fit === 'cover' ? '40%' : '90%', // Reduce width for portrait videos
   height: fit === 'cover' ? 600 : 300, // Increase height for portrait videos
   backgroundColor: 'rgba(255, 255, 255, 0.1)',
   border: '1px solid white',
+  margin: theme.spacing(2),
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+  color: 'white'
+}));
+
+const GreyPlaceholder = styled(Paper)(({ theme }) => ({
+  width: '100%',
+  height: 300,
+  backgroundColor: 'grey',
   margin: theme.spacing(2),
   display: 'flex',
   alignItems: 'center',
@@ -40,6 +51,7 @@ const CreateMusicPage = () => {
   const [uploadedVideo, setUploadedVideo] = useState(null);
   const [previewUrl, setPreviewUrl] = useState('');
   const [objectFit, setObjectFit] = useState('contain'); // Default object-fit
+  const [generatedVideoUrl, setGeneratedVideoUrl] = useState(''); // State for the generated video URL
 
   const handleFileChange = (event) => {
     const file = event.target.files[0];
@@ -61,6 +73,20 @@ const CreateMusicPage = () => {
     }
   };
 
+  const handleGenerateVideo = () => {
+    // Set the generated video URL
+    setGeneratedVideoUrl('https://www.youtube.com/embed/dQw4w9WgXcQ'); // Example embedded video URL
+  };
+
+  const handleDownloadVideo = () => {
+    const link = document.createElement('a');
+    link.href = generatedVideoUrl;
+    link.download = 'generated_video.mp4';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
   return (
     <Box
       sx={{
@@ -71,7 +97,7 @@ const CreateMusicPage = () => {
         m: 0,
         display: 'flex',
         flexDirection: 'column',
-        alignItems: 'center'
+        alignItems: 'center',
       }}
     >
       <Header />
@@ -100,18 +126,52 @@ const CreateMusicPage = () => {
             fullWidth
             onChange={handleFileChange}
           />
+          {previewUrl ? (
+            <VideoPlaceholder fit={objectFit}>
+              <StyledVideo controls fit={objectFit}>
+                <source src={previewUrl} type="video/mp4" />
+                Your browser does not support the video tag.
+              </StyledVideo>
+            </VideoPlaceholder>
+          ) : (
+            <GreyPlaceholder sx={{borderRadius: 5}}>
+              <Typography variant="h6">Video Preview</Typography>
+            </GreyPlaceholder>
+          )}
           {previewUrl && (
+            <Button
+              variant="contained"
+              sx={{ backgroundColor: '#A1C75E', alignSelf: 'end', mt: 2, borderRadius: 20 }}
+              onClick={handleGenerateVideo}
+            >
+              Generate Video
+            </Button>
+          )}
+        </Box>
+        <Box sx={{ width: '50%', display: 'flex', flexDirection: 'column', pl: 2, pt: 7}}>
+          {generatedVideoUrl ? (
             <>
-              <VideoPlaceholder fit={objectFit}>
-                <StyledVideo controls fit={objectFit}>
-                  <source src={previewUrl} type="video/mp4" />
-                  Your browser does not support the video tag.
-                </StyledVideo>
-              </VideoPlaceholder>
-              <Button variant="contained" sx={{ backgroundColor: '#A1C75E', alignSelf: 'end', mt: 2, borderRadius: 20 }}>
-                Generate Video
+              <iframe
+                width="100%"
+                height="300"
+                src={generatedVideoUrl}
+                frameBorder="0"
+                allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture"
+                allowFullScreen
+                title="Generated Video"
+              ></iframe>
+              <Button
+                variant="contained"
+                sx={{ backgroundColor: '#A1C75E', alignSelf: 'end', mt: 6, borderRadius: 20 }}
+                onClick={handleDownloadVideo}
+              >
+                Download Video
               </Button>
             </>
+          ) : (
+            <GreyPlaceholder sx={{ borderRadius: 5}}>
+              <Typography variant="h6">Generated Video</Typography>
+            </GreyPlaceholder>
           )}
         </Box>
       </Box>

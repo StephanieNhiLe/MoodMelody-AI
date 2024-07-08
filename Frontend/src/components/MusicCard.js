@@ -1,5 +1,5 @@
 import React from 'react';
-import { Card, CardMedia, CardContent, Typography, Button } from '@mui/material';
+import { Card, CardMedia, CardContent, Typography, Button, Box } from '@mui/material';
 
 const MusicCard = ({ image, title, description }) => {
   return (
@@ -20,18 +20,20 @@ const MusicCard = ({ image, title, description }) => {
         <Typography variant="body2" gutterBottom style={{color: '#E1EFC5'}}>
           {description}
         </Typography>
-        <Button variant="contained" href='/create-music' 
-        sx={{
-          backgroundColor:'#626E51', fontSize: '0.5em',
-          borderRadius: '3rem',
-          '&:hover': {
-          backgroundColor: '#85B038'
-          },
-          color: 'white', fontWeight: 'bold', mt:2
-        }} 
-        >
-          Try it now
-        </Button>
+        <Box sx={{ pl: '5rem'}}>
+          <Button variant="contained" href='/create-music' 
+          sx={{
+            backgroundColor:'#626E51', fontSize: '0.5em',
+            borderRadius: '3rem',
+            '&:hover': {
+            backgroundColor: '#85B038',
+            },
+            color: 'white', fontWeight: 'bold', mt:2
+          }} 
+          >
+            Try it now
+          </Button>
+        </Box>
       </CardContent>
     </Card>
   );
