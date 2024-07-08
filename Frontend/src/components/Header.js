@@ -7,7 +7,7 @@ const Header = () => {
       <Toolbar>
         <Typography variant="h6" sx={{ fontFamily: 'revert', flexGrow: 1, color: 'white', textAlign: 'left', pl: 15}}>
           <Link href='/' color="inherit" underline="none">
-            MoodMelody.ai
+            MoodMelody.AI
           </Link>
         </Typography>
         <Box sx={{ marginLeft: 'auto', pr: 15}}>
