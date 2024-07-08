@@ -3,6 +3,7 @@ import { Box, Typography, Button, TextField, Paper } from '@mui/material';
 import { styled } from '@mui/material/styles';
 import Header from './Header';
 import CloudUploadIcon from '@mui/icons-material/CloudUpload';
+import axios from 'axios';
 
 const VideoPlaceholder = styled(Paper)(({ theme, fit }) => ({
   width: fit === 'cover' ? '40%' : '90%', // Reduce width for portrait videos
@@ -74,9 +75,28 @@ const CreateMusicPage = () => {
     }
   };
 
-  const handleGenerateVideo = () => {
-    // Set the generated video URL
-    setGeneratedVideoUrl('https://www.youtube.com/embed/dQw4w9WgXcQ'); // Example embedded video URL
+  const handleGenerateVideo = async () => {
+    if (!uploadedVideo) {
+      return;
+    }
+  
+    const formData = new FormData();
+    formData.append('video', uploadedVideo);
+  
+    try {
+      const response = await axios.post('http://127.0.0.1:5000/getBGM', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data'
+        },
+        responseType: 'blob'  
+      });
+
+      const videoBlob = new Blob([response.data], { type: 'video/mp4' });
+      const videoUrl = URL.createObjectURL(videoBlob);
+      setGeneratedVideoUrl(videoUrl);
+    } catch (error) {
+      console.error('Error generating video:', error);
+    }
   };
 
   const handleDownloadVideo = () => {
@@ -98,16 +118,13 @@ const CreateMusicPage = () => {
     formData.append('video', uploadedVideo);
   
     try {
-      const response = await fetch('http://127.0.0.1:5000/analyze_sentiment', {
-        method: 'POST',
-        body: formData,
+      const response = await axios.post('http://127.0.0.1:5000/analyze_sentiment', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data'
+        }
       });
   
-      if (!response.ok) {
-        throw new Error('Network response was not ok');
-      }
-  
-      const result = await response.json();
+      const result = response.data;
       alert(`Sentiment: ${result.sentiment}\nScore: ${result.score}`);
       setSentimentResult({ sentiment: result.sentiment, score: result.score });
     } catch (error) {
@@ -187,24 +204,30 @@ const CreateMusicPage = () => {
           )}
           {sentimentResult && (
             <Box sx={{ mt: 2 }}>
-              <Typography variant="h6">Sentiment Analysis Result:</Typography>
+              <Typography variant="h6">Sentiment Analysis Result</Typography>
               <Typography>Sentiment: {sentimentResult.sentiment}</Typography>
               <Typography>Score: {sentimentResult.score}</Typography>
             </Box>
           )}
         </Box>
         <Box sx={{ width: '50%', display: 'flex', flexDirection: 'column', pl: 2, pt: 7}}>
-          {generatedVideoUrl ? (
+        {generatedVideoUrl ? (
             <>
-              <iframe
+              {/* <video
                 width="100%"
                 height="300"
+                controls
                 src={generatedVideoUrl}
-                frameBorder="0"
-                allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture"
-                allowFullScreen
-                title="Generated Video"
-              ></iframe>
+                style={{ borderRadius: '5px' }}
+              >
+                Your browser does not support the video tag.
+              </video> */}
+              <VideoPlaceholder fit={objectFit}>
+                <StyledVideo controls fit={objectFit}>
+                  <source src={generatedVideoUrl} type="video/mp4" />
+                  Your browser does not support the video tag.
+                </StyledVideo>
+              </VideoPlaceholder>
               <Button
                 variant="contained"
                 sx={{ backgroundColor: '#A1C75E', alignSelf: 'end', mt: 6, borderRadius: 20 }}

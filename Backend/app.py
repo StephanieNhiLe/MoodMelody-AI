@@ -8,7 +8,7 @@ from datetime import datetime
 from flask_cors import CORS
 
 app = Flask(__name__)
-CORS(app) 
+CORS(app, resources={r"/*": {"origins": "http://localhost:3000", "methods": ["GET", "POST", "OPTIONS"]}})
 
 MUSIC_FOLDER = os.path.join(os.getcwd(), 'music')
 TRANSCRIPTS_FOLDER = os.path.join(os.getcwd(), 'transcripts')
@@ -23,45 +23,40 @@ def check():
 
 @app.route('/getBGM', methods=['POST'])
 def getBGM():
-    """
-    Processes a video request by performing the following steps:
-    - Retrieves the video from the POST request body
-    - Generates a transcript from the video
-    - Generates sentiment analysis from the transcript
-    - Generates music based on the sentiment analysis
-    """
     try:
-        # Check if video is in request
         if 'video' not in request.files:
             return jsonify({'message': 'No file part'}), 400
         video = request.files['video']
         
-        # Generate Transcript from Video
+        temp_video_path = generate_unique_filename('video', 'mp4')
+        with open(temp_video_path, 'wb') as f:
+            f.write(video.read())
+        
         videoTranscripter = VideoToTranscript()
-        transcript = videoTranscripter.getTranscript(video)
+        transcript = videoTranscripter.getTranscript(temp_video_path)
 
-        # Save transcript to a txt file
         transcript_filename = generate_unique_filename('transcript', 'txt')
         transcript_path = os.path.join(TRANSCRIPTS_FOLDER, transcript_filename)
         with open(transcript_path, 'w') as f:
             f.write(transcript)
         
-        # Perform sentiment analysis on the transcript txt file
         sentimentAnalyzer = SentimentAnalyzer()
         sentiment, score = sentimentAnalyzer.analyze_sentiment_from_file(transcript_path)
         prompt = sentimentAnalyzer.get_music_prompt(sentiment)
-        print(f"Sentiment: {sentiment}, Score: {score}, Prompt: {prompt}") # Debugging
+        print(f"Sentiment: {sentiment}, Score: {score}, Prompt: {prompt}")
 
-        # Generate Music from sentiment analysis
-        audio_bytes = MusicGen().generate_music(prompt) 
-    
-        # Return Music as wav file
+        musicGen = MusicGen()
+        musicGen.generate_music(prompt) 
+        outputVideo_path = musicGen.add_background_music(temp_video_path)
+        
+        removeTempFiles(temp_video_path, "musicgen_out.wav")
+        
         return send_file(
-            io.BytesIO(audio_bytes),
-            mimetype='audio/wav',
+            outputVideo_path,
+            mimetype='video/mp4',
             as_attachment=True,
-            download_name='generated_music.wav'
-        ), 200
+            download_name='output.mp4'
+        )
     except Exception as e:
         app.logger.error(f"Error Processing Video: {str(e)}")
         return jsonify({'message': f'Error processing request: {str(e)}'}), 500
@@ -74,8 +69,12 @@ def analyze_sentiment():
         
         video = request.files['video']
         
+        temp_video_path = generate_unique_filename('video', 'mp4')
+        with open(temp_video_path, 'wb') as f:
+            f.write(video.read())
+        
         videoTranscripter = VideoToTranscript()
-        transcript = videoTranscripter.getTranscript(video)
+        transcript = videoTranscripter.getTranscript(temp_video_path)
 
         temp_transcript_path = 'temp_transcript.txt'
         with open(temp_transcript_path, 'w') as f:
@@ -85,6 +84,7 @@ def analyze_sentiment():
         sentiment, score = sentimentAnalyzer.analyze_sentiment_from_file(temp_transcript_path)
         
         os.remove(temp_transcript_path)
+        os.remove(temp_video_path)
 
         return jsonify({
             'sentiment': sentiment,
@@ -101,21 +101,11 @@ def generate_unique_filename(prefix, extension, sentiment_score=None):
         return f"{prefix}_{sentiment_score}_{timestamp}.{extension}"
     return f"{prefix}_{timestamp}.{extension}"
 
-# Testing Purposes Only
-# Get WAV from custom input
-# `sentiment` = prompt to generate music
-# @app.route('/genMusic', methods=['POST'])
-# def genMusic():
-#     if 'sentiment' not in request.json:
-#         return jsonify({'message': 'No sentiment part'}), 400
-#     sentiment = request.json['sentiment']
-#     audio_bytes = MusicGen().generate_music(sentiment)
-#     return send_file(
-#         io.BytesIO(audio_bytes),
-#         mimetype='audio/wav',
-#         as_attachment=True,
-#         download_name='generated_music.wav'
-#     )
+def removeTempFiles(temp_video_path, music_path):
+    if os.path.exists(temp_video_path):
+        os.remove(temp_video_path)
+    if os.path.exists(music_path):
+        os.remove(music_path)
 
 
 

@@ -2,3 +2,11 @@ Flask
 requests
 assemblyai
 python-dotenv
+transformers
+scipy
+moviepy
+tf-keras
+tensorflow
+numpy
+torch
+torchaudio
