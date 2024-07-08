@@ -1,39 +1,24 @@
 import React, { useState } from 'react';
-import { Box, Typography, Button, TextField, ToggleButton, ToggleButtonGroup, Paper, IconButton } from '@mui/material';
+import { Box, Typography, Button, TextField, Paper } from '@mui/material';
 import { styled } from '@mui/material/styles';
 import Header from './Header';
-import CloudUploadIcon from '@mui/icons-material/CloudUpload';  // Importing the cloud upload icon
+import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 
-const StyledToggleButtonGroup = styled(ToggleButtonGroup)(({ theme }) => ({
-  backgroundColor: 'transparent',
-  '& .MuiToggleButtonGroup-grouped': {
-    margin: theme.spacing(1),
-    border: '1px solid white',
-    '&.Mui-selected': {
-      backgroundColor: 'rgba(255, 255, 255, 0.2)',
-      color: 'white',
-    },
-    '&:not(.Mui-selected)': {
-      backgroundColor: 'transparent',
-      color: 'grey',
-    },
-  },
-}));
-
-const VideoPlaceholder = styled(Paper)(({ theme }) => ({
-  height: 300,
-  flex: 1,
+const VideoPlaceholder = styled(Paper)(({ theme, fit }) => ({
+  width: fit === 'cover' ? '40%' : '100%', // Reduce width for portrait videos
+  height: fit === 'cover' ? 600 : 300, // Increase height for portrait videos
   backgroundColor: 'rgba(255, 255, 255, 0.1)',
   border: '1px solid white',
   margin: theme.spacing(2),
   display: 'flex',
   alignItems: 'center',
   justifyContent: 'center',
+  color: 'white',
 }));
 
 const StyledTextField = styled(TextField)({
   '& .MuiOutlinedInput-root': {
-    borderRadius: 20,  // Rounded corners for the input
+    borderRadius: 20,
     borderColor: 'white',
     color: 'white',
     '& fieldset': {
@@ -45,22 +30,34 @@ const StyledTextField = styled(TextField)({
   },
 });
 
-const TabButton = styled(IconButton)({
-  position: 'absolute',
-  right: 10,
-  top: 'calc(50% - 14px)',  // Center vertically
-  color: 'white',
-  backgroundColor: 'rgba(255, 255, 255, 0.2)',
-  borderRadius: '4px',
-});
+const StyledVideo = styled('video')(({ fit }) => ({
+  width: '100%',
+  height: '100%',
+  objectFit: fit, // Use the fit prop to set object-fit
+}));
 
 const CreateMusicPage = () => {
-  const [uploadType, setUploadType] = useState('upload');
-  const [videoUrl, setVideoUrl] = useState('');
+  const [uploadedVideo, setUploadedVideo] = useState(null);
+  const [previewUrl, setPreviewUrl] = useState('');
+  const [objectFit, setObjectFit] = useState('contain'); // Default object-fit
 
-  const handleUploadChange = (event, newUploadType) => {
-    if (newUploadType !== null) {
-      setUploadType(newUploadType);
+  const handleFileChange = (event) => {
+    const file = event.target.files[0];
+    if (file) {
+      const url = URL.createObjectURL(file);
+      setUploadedVideo(file);
+      setPreviewUrl(url);
+
+      const video = document.createElement('video');
+      video.src = url;
+      video.onloadedmetadata = () => {
+        const aspectRatio = video.videoWidth / video.videoHeight;
+        if (aspectRatio > 1) {
+          setObjectFit('contain'); // Landscape
+        } else {
+          setObjectFit('cover'); // Portrait
+        }
+      };
     }
   };
 
@@ -68,71 +65,55 @@ const CreateMusicPage = () => {
     <Box
       sx={{
         minHeight: '100vh',
-        bgcolor: '#0A1929',  // Dark bluish color
+        bgcolor: '#0A1929',
         color: 'white',
         p: 0,
         m: 0,
         display: 'flex',
         flexDirection: 'column',
-        alignItems: 'center',
+        alignItems: 'center'
       }}
     >
       <Header />
-      <Typography variant="h3" sx={{ mt: 8, mb: 2, background: 'linear-gradient(45deg, green, white)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
+      <Typography
+        variant="h2"
+        sx={{
+          fontWeight: 'bold',
+          mt: 2,
+          mb: 2,
+          background: 'linear-gradient(45deg, #849567, white)',
+          WebkitBackgroundClip: 'text',
+          WebkitTextFillColor: 'transparent',
+          textAlign: 'left',
+          width: '100%',
+          pl: 48,
+        }}
+      >
         Create Your Music
       </Typography>
       <Box sx={{ display: 'flex', width: '80%', justifyContent: 'space-between', px: 2 }}>
         <Box sx={{ width: '50%', display: 'flex', flexDirection: 'column', pr: 2 }}>
-          <StyledToggleButtonGroup
-            exclusive
-            onChange={handleUploadChange}
-            aria-label="Video upload choice"
-            fullWidth
-          >
-            <ToggleButton value="upload" startIcon={<CloudUploadIcon />}>
-              Upload video
-            </ToggleButton>
-            <ToggleButton value="url">
-              Paste a video URL
-            </ToggleButton>
-          </StyledToggleButtonGroup>
-          {uploadType === 'upload' ? (
-            <StyledTextField
-              variant="outlined"
-              type="file"
-              InputLabelProps={{ shrink: true }}
-              fullWidth
-            />
-          ) : (
-            <StyledTextField
-              variant="outlined"
-              fullWidth
-              value={videoUrl}
-              onChange={(e) => setVideoUrl(e.target.value)}
-              placeholder="Paste a video URL"
-            />
-          )}
           <StyledTextField
             variant="outlined"
+            type="file"
+            InputLabelProps={{ shrink: true }}
             fullWidth
-            multiline
-            rows={4}
-            placeholder="Type your word here..."
-            InputProps={{
-              endAdornment: (
-                <TabButton size="small">
-                  tab
-                </TabButton>
-              ),
-            }}
+            onChange={handleFileChange}
           />
-          <Button variant="contained" color="secondary" sx={{ alignSelf: 'start', mt: 2, borderRadius: 20 }}>
-            Generate Video
-          </Button>
+          {previewUrl && (
+            <>
+              <VideoPlaceholder fit={objectFit}>
+                <StyledVideo controls fit={objectFit}>
+                  <source src={previewUrl} type="video/mp4" />
+                  Your browser does not support the video tag.
+                </StyledVideo>
+              </VideoPlaceholder>
+              <Button variant="contained" sx={{ backgroundColor: '#A1C75E', alignSelf: 'end', mt: 2, borderRadius: 20 }}>
+                Generate Video
+              </Button>
+            </>
+          )}
         </Box>
-        <VideoPlaceholder>
-          Generated Video Appears Here
-        </VideoPlaceholder>
       </Box>
     </Box>
   );
