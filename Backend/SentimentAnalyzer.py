@@ -2,12 +2,15 @@ from transformers import pipeline
 
 class SentimentAnalyzer:
     def __init__(self):
-        self.analyzer = pipeline('sentiment-analysis')
-        
+        self.analyzer = pipeline(
+            'sentiment-analysis',
+            model='distilbert-base-uncased-finetuned-sst-2-english'
+        )
+
     def analyze_sentiment_from_file(self, file_path):
         with open(file_path, 'r') as file:
             text = file.read()
-        result = self.analyzer(text[:512])[0] 
+        result = self.analyzer(text[:512])[0]  # Truncate to handle long texts
         sentiment = result['label'].lower()
         score = result['score']
         return sentiment, score

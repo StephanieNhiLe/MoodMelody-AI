@@ -6,8 +6,8 @@ transformers
 scipy
 moviepy
 tf-keras
-tensorflow
-numpy
-torch
+# tensorflow
+# numpy
+# torch
 torchaudio
 gunicorn
