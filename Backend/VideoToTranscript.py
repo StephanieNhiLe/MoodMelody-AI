@@ -9,9 +9,10 @@ class VideoToTranscript:
         aai.settings.api_key = os.getenv('ASSEMBLYAI_API_KEY')
         self.transcriber = aai.Transcriber()
         
-    def getTranscript(self, video):
+    def getTranscript(self, videoPath):
         try:
-            transcript = self.transcriber.transcribe(video)
-            return transcript.text
+            with open(videoPath, 'rb') as file:
+                transcript = self.transcriber.transcribe(file)
+                return transcript.text
         except Exception as e:
             raise Exception(f"Error transcribing video: {str(e)}")

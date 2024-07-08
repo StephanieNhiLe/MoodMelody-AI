@@ -2,3 +2,6 @@ Flask
 requests
 assemblyai
 python-dotenv
+transformers
+scipy
+moviepy
