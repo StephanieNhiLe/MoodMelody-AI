@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Box, Typography, Button, TextField, Paper } from '@mui/material';
+import { Box, Typography, Button, TextField, Paper, Slider, LinearProgress } from '@mui/material';
 import { styled } from '@mui/material/styles';
 import Header from './Header';
 import CloudUploadIcon from '@mui/icons-material/CloudUpload';
@@ -45,14 +45,14 @@ const StyledTextField = styled(TextField)({
 const StyledVideo = styled('video')(({ fit }) => ({
   width: '100%',
   height: '100%',
-  objectFit: fit, // Use the fit prop to set object-fit
+  objectFit: fit, 
 }));
 
 const CreateMusicPage = () => {
   const [uploadedVideo, setUploadedVideo] = useState(null);
   const [previewUrl, setPreviewUrl] = useState('');
-  const [objectFit, setObjectFit] = useState('contain'); // Default object-fit
-  const [generatedVideoUrl, setGeneratedVideoUrl] = useState(''); // State for the generated video URL
+  const [objectFit, setObjectFit] = useState('contain'); 
+  const [generatedVideoUrl, setGeneratedVideoUrl] = useState(''); 
   const [sentimentResult, setSentimentResult] = useState('');
 
   const handleFileChange = (event) => {
@@ -133,6 +133,62 @@ const CreateMusicPage = () => {
     }
   };
 
+  const renderSentimentResult = () => {
+    if (!sentimentResult) return null;
+
+    const { sentiment, score } = sentimentResult;
+    const confidenceScore = parseFloat(score) * 100; 
+
+    const getColor = (sentiment) => {
+      switch (sentiment.toLowerCase()) {
+        case 'positive': return '#48dbfb'; // Blue 
+        case 'negative': return '#ff6b6b'; // Red 
+        default: return '#feca57'; // Yellow 
+      }
+    };
+
+    return (
+      <Box sx={{ mt: 4, width: '100%' }}>
+        <Typography variant="h6" gutterBottom>Sentiment Analysis Result</Typography>
+        <Box sx={{ display: 'flex', alignItems: 'center', mt: 2 }}>
+          <Typography variant="body1" sx={{ mr: 2, minWidth: 100 }}>Sentiment:</Typography>
+          <Typography 
+            variant="body1" 
+            sx={{ 
+              color: getColor(sentiment),
+              fontWeight: 'bold',
+              fontSize: '1.2rem'
+            }}
+          >
+            {sentiment.toUpperCase()}
+          </Typography>
+        </Box>
+        <Box sx={{ mt: 2 }}>
+          <Typography variant="body2" gutterBottom>Confidence:</Typography>
+          <Box sx={{ display: 'flex', alignItems: 'center' }}>
+            <Box sx={{ width: '100%', mr: 1 }}>
+              <LinearProgress 
+                variant="determinate" 
+                value={confidenceScore} 
+                sx={{
+                  height: 10,
+                  borderRadius: 5,
+                  backgroundColor: 'rgba(255, 255, 255, 0.1)',
+                  '& .MuiLinearProgress-bar': {
+                    backgroundColor: getColor(sentiment),
+                  }
+                }}
+              />
+            </Box>
+            <Box sx={{ minWidth: 35 }}>
+              <Typography variant="body2" color="text.secondary">{`${Math.round(confidenceScore)}%`}</Typography>
+            </Box>
+          </Box>
+        </Box>
+      </Box>
+    );
+  };
+
   return (
     <Box
       sx={{
@@ -202,11 +258,12 @@ const CreateMusicPage = () => {
               </Button>
             </div>
           )}
+          {renderSentimentResult()}
           {sentimentResult && (
             <Box sx={{ mt: 2 }}>
               <Typography variant="h6">Sentiment Analysis Result</Typography>
               <Typography>Sentiment: {sentimentResult.sentiment}</Typography>
-              <Typography>Score: {sentimentResult.score}</Typography>
+              <Typography>Accuracy score: {sentimentResult.score}</Typography>
             </Box>
           )}
         </Box>
