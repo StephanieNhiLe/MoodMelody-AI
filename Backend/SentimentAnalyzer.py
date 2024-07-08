@@ -4,10 +4,8 @@ import os
 from dotenv import load_dotenv
 load_dotenv()
 
-# Set up Gemini API
+# Gemini API
 genai.configure(api_key=os.getenv("GOOGLE_API_KEY"))
-
-# Set up the model
 model = genai.GenerativeModel('gemini-pro')
 
 class SentimentAnalyzer:
