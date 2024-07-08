@@ -10,6 +10,8 @@ __pycache__
 
 # dependencies
 /node_modules
+node_modules
+/Frontend/node_modules
 /.pnp
 .pnp.js
 
@@ -25,4 +27,4 @@ yarn-error.log*
 /build
 
 # misc
-.DS_Store
+.DS_Store 

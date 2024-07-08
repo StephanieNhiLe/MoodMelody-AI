@@ -5,8 +5,10 @@ from SentimentAnalyzer import SentimentAnalyzer
 import io  
 import os
 from datetime import datetime
+from flask_cors import CORS
 
 app = Flask(__name__)
+CORS(app) 
 
 MUSIC_FOLDER = os.path.join(os.getcwd(), 'music')
 TRANSCRIPTS_FOLDER = os.path.join(os.getcwd(), 'transcripts')
@@ -60,6 +62,35 @@ def getBGM():
             as_attachment=True,
             download_name='generated_music.wav'
         ), 200
+    except Exception as e:
+        app.logger.error(f"Error Processing Video: {str(e)}")
+        return jsonify({'message': f'Error processing request: {str(e)}'}), 500
+
+@app.route('/analyze_sentiment', methods=['POST'])
+def analyze_sentiment():
+    try:
+        if 'video' not in request.files:
+            return jsonify({'message': 'No file part'}), 400
+        
+        video = request.files['video']
+        
+        videoTranscripter = VideoToTranscript()
+        transcript = videoTranscripter.getTranscript(video)
+
+        temp_transcript_path = 'temp_transcript.txt'
+        with open(temp_transcript_path, 'w') as f:
+            f.write(transcript)
+        
+        sentimentAnalyzer = SentimentAnalyzer()
+        sentiment, score = sentimentAnalyzer.analyze_sentiment_from_file(temp_transcript_path)
+        
+        os.remove(temp_transcript_path)
+
+        return jsonify({
+            'sentiment': sentiment,
+            'score': score
+        }), 200
+    
     except Exception as e:
         app.logger.error(f"Error Processing Video: {str(e)}")
         return jsonify({'message': f'Error processing request: {str(e)}'}), 500
