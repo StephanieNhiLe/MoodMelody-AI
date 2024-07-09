@@ -300,7 +300,7 @@ const CreateMusicPage = () => {
         </Box>
         <Box sx={{ display: 'flex', flexDirection: 'column', pl: 2, pt: 7}}>
         {generatedVideoUrl ? (
-            <> 
+            <div style={{ display: 'flex', justifyContent: 'center', flexDirection: 'column', gap: '10px' }}> 
               <VideoPlaceholder sx={{ aspectRatio: videoAspectRatio }}>
                 <StyledVideo key={generatedVideoUrl} controls >
                   <source src={generatedVideoUrl} type="video/mp4" />
@@ -314,7 +314,7 @@ const CreateMusicPage = () => {
               >
                 Download Video
               </Button>
-            </>
+            </div>
           ) : (
             <GreyPlaceholder sx={{ borderRadius: 5}}>
               <Typography variant="h6">Generated Video</Typography>
