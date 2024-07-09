@@ -1,3 +1,4 @@
+import torch
 from transformers import AutoProcessor, MusicgenForConditionalGeneration
 import scipy
 from moviepy.editor import AudioFileClip, VideoFileClip, CompositeAudioClip, concatenate_audioclips

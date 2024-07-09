@@ -27,11 +27,11 @@ def getBGM():
         if 'video' not in request.files:
             return jsonify({'message': 'No file part'}), 400
         video = request.files['video']
-        
+
         temp_video_path = generate_unique_filename('video', 'mp4')
         with open(temp_video_path, 'wb') as f:
             f.write(video.read())
-        
+
         videoTranscripter = VideoToTranscript()
         transcript = videoTranscripter.getTranscript(temp_video_path)
 
@@ -39,7 +39,7 @@ def getBGM():
         transcript_path = os.path.join(TRANSCRIPTS_FOLDER, transcript_filename)
         with open(transcript_path, 'w') as f:
             f.write(transcript)
-        
+
         sentimentAnalyzer = SentimentAnalyzer()
         sentiment, score = sentimentAnalyzer.analyze_sentiment_from_file(transcript_path)
         prompt = sentimentAnalyzer.get_music_prompt(sentiment)
@@ -59,6 +59,8 @@ def getBGM():
         )
     except Exception as e:
         app.logger.error(f"Error Processing Video: {str(e)}")
+        import traceback
+        app.logger.error(traceback.format_exc())
         return jsonify({'message': f'Error processing request: {str(e)}'}), 500
 
 @app.route('/analyze_sentiment', methods=['POST'])

@@ -5,16 +5,18 @@ import Header from './Header';
 import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 import axios from 'axios';
 
-const VideoPlaceholder = styled(Paper)(({ theme, fit }) => ({
-  width: fit === 'cover' ? '40%' : '90%', // Reduce width for portrait videos
-  height: fit === 'cover' ? 600 : 300, // Increase height for portrait videos
+const VideoPlaceholder = styled(Paper)(({ theme, fit }) => ({ 
+  width: '100%',
+  maxWidth: '300px', 
+  aspectRatio: '16 / 9', 
   backgroundColor: 'rgba(255, 255, 255, 0.1)',
   border: '1px solid white',
   margin: theme.spacing(2),
   display: 'flex',
   alignItems: 'center',
   justifyContent: 'center',
-  color: 'white'
+  color: 'white',
+  overflow: 'hidden' 
 }));
 
 const GreyPlaceholder = styled(Paper)(({ theme }) => ({
@@ -44,8 +46,8 @@ const StyledTextField = styled(TextField)({
 
 const StyledVideo = styled('video')(({ fit }) => ({
   width: '100%',
-  height: '100%',
-  objectFit: fit, 
+  height: '100%', 
+  objectFit: 'contain',
 }));
 
 const CreateMusicPage = () => {
@@ -54,6 +56,7 @@ const CreateMusicPage = () => {
   const [objectFit, setObjectFit] = useState('contain'); 
   const [generatedVideoUrl, setGeneratedVideoUrl] = useState(''); 
   const [sentimentResult, setSentimentResult] = useState('');
+  const [videoAspectRatio, setVideoAspectRatio] = useState('16 / 9');
 
   const handleFileChange = (event) => {
     const file = event.target.files[0];
@@ -65,12 +68,13 @@ const CreateMusicPage = () => {
       const video = document.createElement('video');
       video.src = url;
       video.onloadedmetadata = () => {
-        const aspectRatio = video.videoWidth / video.videoHeight;
-        if (aspectRatio > 1) {
-          setObjectFit('contain'); // Landscape
-        } else {
-          setObjectFit('cover'); // Portrait
-        }
+        const aspectRatio = `${video.videoWidth} / ${video.videoHeight}`;
+        setVideoAspectRatio(aspectRatio);
+        // if (aspectRatio > 1) {
+        //   setObjectFit('contain'); // Landscape
+        // } else {
+        //   setObjectFit('cover'); // Portrait
+        // }
       };
     }
   };
@@ -91,11 +95,43 @@ const CreateMusicPage = () => {
         responseType: 'blob'  
       });
 
-      const videoBlob = new Blob([response.data], { type: 'video/mp4' });
-      const videoUrl = URL.createObjectURL(videoBlob);
-      setGeneratedVideoUrl(videoUrl);
+      
+      const contentType = response.headers['content-type'];
+
+      if (contentType && contentType.indexOf('application/json') !== -1) {
+        console.log('Received JSON response (error)');
+        const reader = new FileReader();
+        reader.onload = function() {
+          const errorMessage = JSON.parse(this.result);
+          console.error('Server error:', errorMessage);
+          alert(`Error: ${errorMessage.message}`);
+        };
+        reader.readAsText(response.data);
+      } else {
+        console.log('Received video blob');
+        const videoBlob = new Blob([response.data], { type: 'video/mp4' });
+        const videoUrl = URL.createObjectURL(videoBlob);
+        setGeneratedVideoUrl(videoUrl);
+      }
     } catch (error) {
       console.error('Error generating video:', error);
+      if (error.response) {
+        console.error('Error data:', error.response.data);
+        console.error('Error status:', error.response.status);
+        console.error('Error headers:', error.response.headers);
+        
+        if (error.response.data instanceof Blob) {
+          const reader = new FileReader();
+          reader.onload = function() {
+            console.error('Error message from server:', this.result);
+          };
+          reader.readAsText(error.response.data);
+        }
+      } else if (error.request) {
+        console.error('Error request:', error.request);
+      } else {
+        console.error('Error message:', error.message);
+      }
     }
   };
 
@@ -148,10 +184,10 @@ const CreateMusicPage = () => {
     };
 
     return (
-      <Box sx={{ mt: 4, width: '100%' }}>
-        <Typography variant="h6" gutterBottom>Sentiment Analysis Result</Typography>
+      <Box sx={{width: '100%' }}>
+        <Typography variant="h6" gutterBottom>Our Detector Shows That</Typography>
         <Box sx={{ display: 'flex', alignItems: 'center', mt: 2 }}>
-          <Typography variant="body1" sx={{ mr: 2, minWidth: 100 }}>Sentiment:</Typography>
+          <Typography variant="body1" sx={{ mr: 2, minWidth: 100 }}>Your Video Mood:</Typography>
           <Typography 
             variant="body1" 
             sx={{ 
@@ -164,7 +200,7 @@ const CreateMusicPage = () => {
           </Typography>
         </Box>
         <Box sx={{ mt: 2 }}>
-          <Typography variant="body2" gutterBottom>Confidence:</Typography>
+          <Typography variant="body1" gutterBottom>Confidence Level:</Typography>
           <Box sx={{ display: 'flex', alignItems: 'center' }}>
             <Box sx={{ width: '100%', mr: 1 }}>
               <LinearProgress 
@@ -181,7 +217,7 @@ const CreateMusicPage = () => {
               />
             </Box>
             <Box sx={{ minWidth: 35 }}>
-              <Typography variant="body2" color="text.secondary">{`${Math.round(confidenceScore)}%`}</Typography>
+            <Typography variant="body2" style={{ color: 'white', fontWeight: 'bold' }}>{`${Math.round(confidenceScore)}%`}</Typography>
             </Box>
           </Box>
         </Box>
@@ -220,7 +256,7 @@ const CreateMusicPage = () => {
         Create Your Music
       </Typography>
       <Box sx={{ display: 'flex', width: '80%', justifyContent: 'space-between', px: 2, paddingBottom: '50px' }}>
-        <Box sx={{ width: '50%', display: 'flex', flexDirection: 'column', pr: 2, alignItems: 'center', justifyContent: 'center' }}>
+        <Box sx={{  display: 'flex', flexDirection: 'column', pr: 2, alignItems: 'center', justifyContent: 'center' }}>
           <StyledTextField
             variant="outlined"
             type="file"
@@ -229,12 +265,15 @@ const CreateMusicPage = () => {
             onChange={handleFileChange}
           />
           {previewUrl ? (
-            <VideoPlaceholder fit={objectFit}>
-              <StyledVideo controls fit="contain">
+            <div style={{ display: 'flex', justifyContent: 'center', flexDirection: 'column', gap: '10px' }}>
+            <VideoPlaceholder sx={{ aspectRatio: videoAspectRatio }}>
+              <StyledVideo controls >
                 <source src={previewUrl} type="video/mp4" />
                 Your browser does not support the video tag.
               </StyledVideo>
             </VideoPlaceholder>
+            {renderSentimentResult()}
+            </div>
           ) : (
             <GreyPlaceholder sx={{borderRadius: 5}}>
               <Typography variant="h6">Video Preview</Typography>
@@ -247,7 +286,7 @@ const CreateMusicPage = () => {
                 sx={{ backgroundColor: '#9179a3', alignSelf: 'end', mt: 2, borderRadius: 20 }}
                 onClick={handleSentimentAnalysis}
               >
-                Mood Detection
+                Mood Detector
               </Button>
               <Button
                 variant="contained"
@@ -258,29 +297,12 @@ const CreateMusicPage = () => {
               </Button>
             </div>
           )}
-          {renderSentimentResult()}
-          {sentimentResult && (
-            <Box sx={{ mt: 2 }}>
-              <Typography variant="h6">Sentiment Analysis Result</Typography>
-              <Typography>Sentiment: {sentimentResult.sentiment}</Typography>
-              <Typography>Accuracy score: {sentimentResult.score}</Typography>
-            </Box>
-          )}
         </Box>
-        <Box sx={{ width: '50%', display: 'flex', flexDirection: 'column', pl: 2, pt: 7}}>
+        <Box sx={{ display: 'flex', flexDirection: 'column', pl: 2, pt: 7}}>
         {generatedVideoUrl ? (
-            <>
-              {/* <video
-                width="100%"
-                height="300"
-                controls
-                src={generatedVideoUrl}
-                style={{ borderRadius: '5px' }}
-              >
-                Your browser does not support the video tag.
-              </video> */}
-              <VideoPlaceholder fit={objectFit}>
-                <StyledVideo controls fit={objectFit}>
+            <> 
+              <VideoPlaceholder sx={{ aspectRatio: videoAspectRatio }}>
+                <StyledVideo key={generatedVideoUrl} controls >
                   <source src={generatedVideoUrl} type="video/mp4" />
                   Your browser does not support the video tag.
                 </StyledVideo>
