@@ -1,6 +1,7 @@
 from flask import Flask, jsonify, request, send_file
 from VideoToTranscript import VideoToTranscript
-from MusicGen import MusicGen
+# from MusicGen import MusicGen
+from MusicGenSagemakerInterface import MusicGenSagemakerInterface
 from SentimentAnalyzer import SentimentAnalyzer
 import io  
 import os
@@ -44,12 +45,13 @@ def getBGM():
         sentiment, score = sentimentAnalyzer.analyze_sentiment_from_file(transcript_path)
         prompt = sentimentAnalyzer.get_music_prompt(sentiment)
         print(f"Sentiment: {sentiment}, Score: {score}, Prompt: {prompt}")
-
-        musicGen = MusicGen()
-        musicGen.generate_music(prompt) 
-        outputVideo_path = musicGen.add_background_music(temp_video_path)
         
-        removeTempFiles(temp_video_path, "musicgen_out.wav")
+        musicGen = MusicGenSagemakerInterface()
+        music_file_paths = musicGen.generate_music(prompt)
+        
+        # For now, just single audio for whole video
+        outputVideo_path = musicGen.add_background_music(temp_video_path, music_file_paths[0])
+        removeTempFiles(temp_video_path, music_file_paths[0])
         
         return send_file(
             outputVideo_path,
@@ -57,6 +59,7 @@ def getBGM():
             as_attachment=True,
             download_name='output.mp4'
         )
+        
     except Exception as e:
         app.logger.error(f"Error Processing Video: {str(e)}")
         import traceback
