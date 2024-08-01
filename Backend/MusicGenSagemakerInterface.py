@@ -44,7 +44,7 @@ class MusicGenSagemakerInterface:
         
         generation_params = { 
                         'guidance_scale': 5, 
-                        'max_new_tokens': 1260, 
+                        'max_new_tokens': max_new_tokens, 
                         'do_sample': True, 
                         'temperature': 0.9, 
                         'segment_duration': video_duration 
@@ -77,6 +77,7 @@ class MusicGenSagemakerInterface:
     def add_background_music(self, video_path, audio_path):
         video_clip = mp.VideoFileClip(video_path)
         audio_clip = mp.AudioFileClip(audio_path)
+        
         if audio_clip.duration < video_clip.duration:
             repeats = int(video_clip.duration / audio_clip.duration) + 1
             audio_clip = concatenate_audioclips([audio_clip] * repeats)
@@ -99,5 +100,6 @@ class MusicGenSagemakerInterface:
         
         # Clean up
         video_clip.close()
+        new_audio.close()
         
         return output_path
