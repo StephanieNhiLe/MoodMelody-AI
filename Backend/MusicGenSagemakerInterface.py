@@ -44,7 +44,7 @@ class MusicGenSagemakerInterface:
         
         generation_params = { 
                         'guidance_scale': 5, 
-                        'max_new_tokens': max_new_tokens, 
+                        'max_new_tokens': 1260, 
                         'do_sample': True, 
                         'temperature': 0.9, 
                         'segment_duration': video_duration 
@@ -81,16 +81,17 @@ class MusicGenSagemakerInterface:
         if audio_clip.duration < video_clip.duration:
             repeats = int(video_clip.duration / audio_clip.duration) + 1
             audio_clip = concatenate_audioclips([audio_clip] * repeats)
-        audio_clip = audio_clip.subclip(0, video_clip.duration)
+            
+        altered_audio = audio_clip.subclip(0, video_clip.duration)
         
         # Adjust audio volume
-        audio_clip = audio_clip.volumex(0.5)
+        altered_audio = audio_clip.volumex(0.5)
         
         # Check if the video has an audio track
         if video_clip.audio is not None:
-            new_audio = mp.CompositeAudioClip([video_clip.audio, audio_clip])
+            new_audio = mp.CompositeAudioClip([video_clip.audio, altered_audio])
         else:
-            new_audio = audio_clip
+            new_audio = altered_audio
         
         final_clip = video_clip.set_audio(new_audio)
         output_path = "output.mp4"
@@ -100,6 +101,6 @@ class MusicGenSagemakerInterface:
         
         # Clean up
         video_clip.close()
-        new_audio.close()
+        audio_clip.close()
         
         return output_path

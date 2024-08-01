@@ -61,8 +61,7 @@ def getBGM():
         music_file_paths = musicGen.generate_music(prompt, temp_video_path)
         outputVideo_path = musicGen.add_background_music(temp_video_path, music_file_paths[0])
         
-        if os.path.exists(temp_video_path):
-            os.remove(temp_video_path)
+        delete_temp_files(temp_video_path, music_file_paths[0])
         
         return send_file(
             outputVideo_path,
@@ -129,6 +128,12 @@ def analyze_sentiment():
     except Exception as e:
         app.logger.error(f"Error Processing Video: {str(e)}")
         return jsonify({'message': f'Error processing request: {str(e)}'}), 500
+
+def delete_temp_files(temp_video_path, music_file_paths):
+        if os.path.exists(temp_video_path):
+            os.remove(temp_video_path)
+        if os.path.exists(music_file_paths):
+            os.remove(music_file_paths)
 
 def generate_unique_filename(prefix, extension, sentiment_score=None):
     timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
