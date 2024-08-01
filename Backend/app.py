@@ -7,6 +7,7 @@ import io
 import os
 from datetime import datetime
 from flask_cors import CORS
+from FaceEmotionPredictor import FaceEmotionPredictor
 
 app = Flask(__name__)
 CORS(app, resources={r"/*": {"origins": "http://localhost:3000", "methods": ["GET", "POST", "OPTIONS"]}})
@@ -32,26 +33,36 @@ def getBGM():
         temp_video_path = generate_unique_filename('video', 'mp4')
         with open(temp_video_path, 'wb') as f:
             f.write(video.read())
-
-        videoTranscripter = VideoToTranscript()
-        transcript = videoTranscripter.getTranscript(temp_video_path)
-
-        transcript_filename = generate_unique_filename('transcript', 'txt')
-        transcript_path = os.path.join(TRANSCRIPTS_FOLDER, transcript_filename)
-        with open(transcript_path, 'w') as f:
-            f.write(transcript)
-
+        
         sentimentAnalyzer = SentimentAnalyzer()
-        sentiment, score = sentimentAnalyzer.analyze_sentiment_from_file(transcript_path)
+        
+        try:
+            # Attempt to get transcript and analyze sentiment from transcript
+            
+            videoTranscripter = VideoToTranscript()
+            transcript = videoTranscripter.getTranscript(temp_video_path)
+            transcript_filename = generate_unique_filename('transcript', 'txt')
+            transcript_path = os.path.join(TRANSCRIPTS_FOLDER, transcript_filename)
+            with open(transcript_path, 'w') as f:
+                f.write(transcript)
+            sentiment, score = sentimentAnalyzer.analyze_sentiment_from_file(transcript_path)
+        
+        except:
+            # Fallback to face emotion prediction if transcript analysis fails
+            
+            faceEmotionPredictor = FaceEmotionPredictor()
+            top_emotion_labels = faceEmotionPredictor.predict_emotions(temp_video_path)
+            sentiment = [emotion[0] for emotion in top_emotion_labels]
+        
         prompt = sentimentAnalyzer.get_music_prompt(sentiment)
-        print(f"Sentiment: {sentiment}, Score: {score}, Prompt: {prompt}")
+        print("sentiment:", sentiment, "prompt:", prompt)
         
         musicGen = MusicGenSagemakerInterface()
-        music_file_paths = musicGen.generate_music(prompt)
-        
-        # For now, just single audio for whole video
+        music_file_paths = musicGen.generate_music(prompt, temp_video_path)
         outputVideo_path = musicGen.add_background_music(temp_video_path, music_file_paths[0])
-        removeTempFiles(temp_video_path, music_file_paths[0])
+        
+        if os.path.exists(temp_video_path):
+            os.remove(temp_video_path)
         
         return send_file(
             outputVideo_path,
@@ -79,18 +90,37 @@ def analyze_sentiment():
             f.write(video.read())
         
         videoTranscripter = VideoToTranscript()
-        transcript = videoTranscripter.getTranscript(temp_video_path)
-
-        temp_transcript_path = 'temp_transcript.txt'
-        with open(temp_transcript_path, 'w') as f:
-            f.write(transcript)
         
-        sentimentAnalyzer = SentimentAnalyzer()
-        sentiment, score = sentimentAnalyzer.analyze_sentiment_from_file(temp_transcript_path)
+        try:
+            # Attempt to get transcript and analyze sentiment from transcript
+            transcript = videoTranscripter.getTranscript(temp_video_path)
+            temp_transcript_path = 'temp_transcript.txt'
+            with open(temp_transcript_path, 'w') as f:
+                f.write(transcript)
+            
+            sentimentAnalyzer = SentimentAnalyzer()
+            sentiment, score = sentimentAnalyzer.analyze_sentiment_from_file(temp_transcript_path)
+        except:
+            # Fallback to face emotion prediction if transcript analysis fails
+            faceEmotionPredictor = FaceEmotionPredictor()
+            top_emotion_labels = faceEmotionPredictor.predict_emotions(temp_video_path)
+            
+            # Calculate total score for face emotions
+            total_score = sum(score for _, score in top_emotion_labels)
+            
+            top_emotion = top_emotion_labels[0]
+            top_emotion_label = top_emotion[0]
+            top_emotion_score = top_emotion[1]
+            
+            # Calculate percentage for the top emotion
+            percentage = (top_emotion_score / total_score) * 100 if total_score > 0 else 0
+            
+            sentiment = top_emotion_label
+            score = round(percentage, 2)
         
         os.remove(temp_transcript_path)
         os.remove(temp_video_path)
-
+        
         return jsonify({
             'sentiment': sentiment,
             'score': score
@@ -105,15 +135,6 @@ def generate_unique_filename(prefix, extension, sentiment_score=None):
     if sentiment_score:
         return f"{prefix}_{sentiment_score}_{timestamp}.{extension}"
     return f"{prefix}_{timestamp}.{extension}"
-
-def removeTempFiles(temp_video_path, music_path):
-    if os.path.exists(temp_video_path):
-        os.remove(temp_video_path)
-    if os.path.exists(music_path):
-        os.remove(music_path)
-
-
-
 
 if __name__ == '__main__':
     app.run()

@@ -5,6 +5,7 @@ from inference_utils import generate_json, upload_input_json, delete_file_on_dis
 import json
 import moviepy.editor as mp
 from moviepy.audio.AudioClip import concatenate_audioclips
+from moviepy.editor import VideoFileClip
 
 from dotenv import load_dotenv
 load_dotenv()
@@ -34,8 +35,20 @@ class MusicGenSagemakerInterface:
             aws_secret_access_key=self.aws_secret_access_key
         )
     
-    def generate_music(self, input_text):
-        generation_params = { 'guidance_scale': 5, 'max_new_tokens': 1260, 'do_sample': True, 'temperature': 0.9 }
+    def generate_music(self, input_text, temp_video_path):
+        
+        video_clip = VideoFileClip(temp_video_path)
+        video_duration = video_clip.duration
+        video_clip.close()
+        max_new_tokens = int(video_duration * 50)
+        
+        generation_params = { 
+                        'guidance_scale': 5, 
+                        'max_new_tokens': 1260, 
+                        'do_sample': True, 
+                        'temperature': 0.9, 
+                        'segment_duration': video_duration 
+                    }
         data = {
             "texts": [input_text],
             "bucket_name": self.sagemaker_session_bucket,
@@ -59,7 +72,6 @@ class MusicGenSagemakerInterface:
         for s3_url in output.get('generated_outputs_s3'):
             if s3_url is not None:
                 music_files.append(download_from_s3(s3_url))
-
         return music_files
         
     def add_background_music(self, video_path, audio_path):
@@ -71,8 +83,14 @@ class MusicGenSagemakerInterface:
         audio_clip = audio_clip.subclip(0, video_clip.duration)
         
         # Adjust audio volume
-        audio_clip = audio_clip.volumex(0.5)
-        new_audio = mp.CompositeAudioClip([video_clip.audio, audio_clip])
+        audio_clip = audio_clip.volumex(0.60)
+        
+        # Check if the video has an audio track
+        if video_clip.audio is not None:
+            new_audio = mp.CompositeAudioClip([video_clip.audio, audio_clip])
+        else:
+            new_audio = audio_clip
+        
         final_clip = video_clip.set_audio(new_audio)
         output_path = "output.mp4"
         
@@ -81,6 +99,5 @@ class MusicGenSagemakerInterface:
         
         # Clean up
         video_clip.close()
-        audio_clip.close()
         
         return output_path
