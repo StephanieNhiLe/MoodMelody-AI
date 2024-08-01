@@ -83,7 +83,7 @@ class MusicGenSagemakerInterface:
         audio_clip = audio_clip.subclip(0, video_clip.duration)
         
         # Adjust audio volume
-        audio_clip = audio_clip.volumex(0.60)
+        audio_clip = audio_clip.volumex(0.5)
         
         # Check if the video has an audio track
         if video_clip.audio is not None:
