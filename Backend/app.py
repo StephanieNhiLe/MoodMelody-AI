@@ -28,6 +28,14 @@ def getBGM():
             return jsonify({'message': 'No file part'}), 400
         video = request.files['video']
 
+        custom_settings = {
+            'customPrompt': request.form.get('customPrompt'),
+            'emotionValue': request.form.get('emotionValue'),
+            'selectedMood': request.form.get('selectedMood'),
+            'selectedMusicalElement': request.form.get('selectedMusicalElement'),
+            'selectedInstrument': request.form.get('selectedInstrument')
+        }
+
         temp_video_path = generate_unique_filename('video', 'mp4')
         with open(temp_video_path, 'wb') as f:
             f.write(video.read())
@@ -42,7 +50,7 @@ def getBGM():
 
         sentimentAnalyzer = SentimentAnalyzer()
         sentiment, score = sentimentAnalyzer.analyze_sentiment_from_file(transcript_path)
-        prompt = sentimentAnalyzer.get_music_prompt(sentiment)
+        prompt = sentimentAnalyzer.get_music_prompt(sentiment, custom_settings)
         print(f"Sentiment: {sentiment}, Score: {score}, Prompt: {prompt}")
 
         musicGen = MusicGen()

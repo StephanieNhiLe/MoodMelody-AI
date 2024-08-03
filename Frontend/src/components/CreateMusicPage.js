@@ -21,7 +21,7 @@ const VideoPlaceholder = styled(Paper)(({ theme, fit }) => ({
 })); 
 
 const GreyPlaceholder = styled('div')(({ theme }) => ({
-  backgroundColor: theme.palette.action.disabledBackground,
+  // backgroundColor: theme.palette.action.disabledBackground,
   padding: theme.spacing(2),
   borderRadius: theme.shape.borderRadius,
   backgroundColor: 'rgba(255, 255, 255, 0.1)',
@@ -84,11 +84,6 @@ const CreateMusicPage = () => {
       video.onloadedmetadata = () => {
         const aspectRatio = `${video.videoWidth} / ${video.videoHeight}`;
         setVideoAspectRatio(aspectRatio);
-        // if (aspectRatio > 1) {
-        //   setObjectFit('contain'); // Landscape
-        // } else {
-        //   setObjectFit('cover'); // Portrait
-        // }
       };
     }
   };
@@ -100,6 +95,12 @@ const CreateMusicPage = () => {
   
     const formData = new FormData();
     formData.append('video', uploadedVideo);
+
+    formData.append('customPrompt', customPrompt);
+    formData.append('emotionValue', emotionValue);
+    formData.append('selectedMood', selectedMood);
+    formData.append('selectedMusicalElement', selectedMusicalElement);
+    formData.append('selectedInstrument', selectedInstrument);
   
     try {
       const response = await axios.post('http://127.0.0.1:5000/getBGM', formData, {
@@ -150,7 +151,7 @@ const CreateMusicPage = () => {
     setShowCustomSettings(true);
   };
   
-  // connect this with backend -> generate with API
+  // connect this with backend -> generate with API --considered
   const handleCustomGeneration = async () => {
     console.log('Custom settings:', {
       prompt: customPrompt,
@@ -169,7 +170,7 @@ const CreateMusicPage = () => {
         <TextField
           fullWidth
           label="Custom Prompt"
-          variant="outlined"
+          variant="outlined" 
           value={customPrompt}
           onChange={(e) => setCustomPrompt(e.target.value)}
           sx={{ mb: 2 }}
@@ -187,7 +188,7 @@ const CreateMusicPage = () => {
           sx={{ mb: 2 }}
         />
         <FormControl fullWidth sx={{ mb: 2 }}>
-          <InputLabel>Mood/Feeling</InputLabel>
+          <InputLabel sx={{ color: 'lightgrey' }}>Mood/Feeling</InputLabel>
           <Select
             value={selectedMood}
             label="Mood/Feeling"
@@ -200,8 +201,8 @@ const CreateMusicPage = () => {
             <MenuItem value="mysterious">Mysterious</MenuItem>
           </Select>
         </FormControl>
-        <FormControl fullWidth sx={{ mb: 2 }}>
-          <InputLabel>Musical Element</InputLabel>
+        <FormControl fullWidth sx={{ mb: 2,  }}>
+          <InputLabel sx={{ color: 'lightgrey' }}>Musical Element</InputLabel>
           <Select
             value={selectedMusicalElement}
             label="Musical Element"
@@ -215,7 +216,7 @@ const CreateMusicPage = () => {
           </Select>
         </FormControl>
         <FormControl fullWidth sx={{ mb: 2 }}>
-          <InputLabel>Instrument</InputLabel>
+          <InputLabel sx={{ color: 'lightgrey' }}>Instrument</InputLabel>
           <Select
             value={selectedInstrument}
             label="Instrument"
@@ -231,7 +232,7 @@ const CreateMusicPage = () => {
         <Button
           variant="contained"
           sx={{ backgroundColor: '#A1C75E', borderRadius: 20 }}
-          onClick={handleCustomGeneration}
+          onClick={handleGenerateVideo}
         >
           Re-Generate with Custom Settings
         </Button>
