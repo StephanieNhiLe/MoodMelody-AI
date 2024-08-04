@@ -103,7 +103,7 @@ const CreateMusicPage = () => {
     formData.append('selectedInstrument', selectedInstrument);
   
     try {
-      const response = await axios.post('http://127.0.0.1:5000/getBGM', formData, {
+      const response = await axios.post('https://moodmelody-ai.onrender.com/', formData, {
         headers: {
           'Content-Type': 'multipart/form-data'
         },
@@ -259,7 +259,7 @@ const CreateMusicPage = () => {
     formData.append('video', uploadedVideo);
   
     try {
-      const response = await axios.post('http://127.0.0.1:5000/analyze_sentiment', formData, {
+      const response = await axios.post('https://moodmelody-ai.onrender.com/', formData, {
         headers: {
           'Content-Type': 'multipart/form-data'
         }
