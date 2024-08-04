@@ -10,3 +10,4 @@ google-generativeai
 flask-cors
 tensorflow
 tf-keras
+ffmpeg
