@@ -120,7 +120,7 @@ def analyze_sentiment():
             top_emotion_score = top_emotion[1]
             
             # Calculate percentage for the top emotion
-            percentage = (top_emotion_score / total_score) * 100 if total_score > 0 else 0
+            percentage = (top_emotion_score / total_score) if total_score > 0 else 0
             
             sentiment = top_emotion_label
             score = round(percentage, 2)
