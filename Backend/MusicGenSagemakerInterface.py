@@ -97,7 +97,7 @@ class MusicGenSagemakerInterface:
         output_path = "output.mp4"
         
         # Thread count should be equal to the number of CPU cores
-        final_clip.write_videofile(output_path, codec='libx264', audio_codec='aac', threads=4)
+        final_clip.write_videofile(output_path, codec='libx264', audio_codec='aac', threads=2)
         
         # Clean up
         video_clip.close()

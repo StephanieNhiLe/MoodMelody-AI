@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
-import { Box, Typography, Button, TextField, Paper, Slider, LinearProgress } from '@mui/material';
+import { Box, Typography, Button, TextField, Paper, Slider, LinearProgress, Select, MenuItem, FormControl, InputLabel } from '@mui/material';
 import { styled } from '@mui/material/styles';
 import Header from './Header';
+import { DropzoneArea } from 'material-ui-dropzone';
 import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 import axios from 'axios';
 
@@ -17,17 +18,16 @@ const VideoPlaceholder = styled(Paper)(({ theme, fit }) => ({
   justifyContent: 'center',
   color: 'white',
   overflow: 'hidden' 
-}));
+})); 
 
-const GreyPlaceholder = styled(Paper)(({ theme }) => ({
+const GreyPlaceholder = styled('div')(({ theme }) => ({
+  // backgroundColor: theme.palette.action.disabledBackground,
+  padding: theme.spacing(2),
+  borderRadius: theme.shape.borderRadius,
+  backgroundColor: 'rgba(255, 255, 255, 0.1)',
   width: '100%',
   height: 300,
-  backgroundColor: 'grey',
-  margin: theme.spacing(2),
-  display: 'flex',
-  alignItems: 'center',
-  justifyContent: 'center',
-  color: 'white',
+  margin: theme.spacing(2), 
 }));
 
 const StyledTextField = styled(TextField)({
@@ -50,6 +50,13 @@ const StyledVideo = styled('video')(({ fit }) => ({
   objectFit: 'contain',
 }));
 
+const CustomSettingsBox = styled(Box)(({ theme }) => ({
+  backgroundColor: 'rgba(255, 255, 255, 0.1)',
+  padding: theme.spacing(2),
+  borderRadius: theme.shape.borderRadius,
+  marginTop: theme.spacing(2),
+}));
+
 const CreateMusicPage = () => {
   const [uploadedVideo, setUploadedVideo] = useState(null);
   const [previewUrl, setPreviewUrl] = useState('');
@@ -57,6 +64,13 @@ const CreateMusicPage = () => {
   const [generatedVideoUrl, setGeneratedVideoUrl] = useState(''); 
   const [sentimentResult, setSentimentResult] = useState('');
   const [videoAspectRatio, setVideoAspectRatio] = useState('16 / 9');
+
+  const [showCustomSettings, setShowCustomSettings] = useState(false);
+  const [customPrompt, setCustomPrompt] = useState('');
+  const [emotionValue, setEmotionValue] = useState(50);
+  const [selectedMood, setSelectedMood] = useState('');
+  const [selectedMusicalElement, setSelectedMusicalElement] = useState('');
+  const [selectedInstrument, setSelectedInstrument] = useState('');
 
   const handleFileChange = (event) => {
     const file = event.target.files[0];
@@ -70,11 +84,6 @@ const CreateMusicPage = () => {
       video.onloadedmetadata = () => {
         const aspectRatio = `${video.videoWidth} / ${video.videoHeight}`;
         setVideoAspectRatio(aspectRatio);
-        // if (aspectRatio > 1) {
-        //   setObjectFit('contain'); // Landscape
-        // } else {
-        //   setObjectFit('cover'); // Portrait
-        // }
       };
     }
   };
@@ -86,6 +95,12 @@ const CreateMusicPage = () => {
   
     const formData = new FormData();
     formData.append('video', uploadedVideo);
+
+    formData.append('customPrompt', customPrompt);
+    formData.append('emotionValue', emotionValue);
+    formData.append('selectedMood', selectedMood);
+    formData.append('selectedMusicalElement', selectedMusicalElement);
+    formData.append('selectedInstrument', selectedInstrument);
   
     try {
       const response = await axios.post('http://127.0.0.1:5000/getBGM', formData, {
@@ -133,6 +148,96 @@ const CreateMusicPage = () => {
         console.error('Error message:', error.message);
       }
     }
+    setShowCustomSettings(true);
+  };
+  
+  // connect this with backend -> generate with API --considered
+  const handleCustomGeneration = async () => {
+    console.log('Custom settings:', {
+      prompt: customPrompt,
+      emotion: emotionValue,
+      mood: selectedMood,
+      musicalElement: selectedMusicalElement,
+      instrument: selectedInstrument,
+    });
+    setShowCustomSettings(false);
+  };
+
+  const renderCustomSettings = () => {
+    return (
+      <CustomSettingsBox>
+        <Typography variant="h6" gutterBottom>Custom Settings</Typography>
+        <TextField
+          fullWidth
+          label="Custom Prompt"
+          variant="outlined" 
+          value={customPrompt}
+          onChange={(e) => setCustomPrompt(e.target.value)}
+          sx={{ mb: 2 }}
+        />
+        <Typography gutterBottom>Emotion</Typography>
+        <Slider
+          value={emotionValue}
+          onChange={(e, newValue) => setEmotionValue(newValue)}
+          aria-labelledby="emotion-slider"
+          valueLabelDisplay="auto"
+          step={1}
+          marks
+          min={0}
+          max={100}
+          sx={{ mb: 2 }}
+        />
+        <FormControl fullWidth sx={{ mb: 2 }}>
+          <InputLabel sx={{ color: 'lightgrey' }}>Mood/Feeling</InputLabel>
+          <Select
+            value={selectedMood}
+            label="Mood/Feeling"
+            onChange={(e) => setSelectedMood(e.target.value)}
+          >
+            <MenuItem value="happy">Happy</MenuItem>
+            <MenuItem value="sad">Sad</MenuItem>
+            <MenuItem value="energetic">Energetic</MenuItem>
+            <MenuItem value="calm">Calm</MenuItem>
+            <MenuItem value="mysterious">Mysterious</MenuItem>
+          </Select>
+        </FormControl>
+        <FormControl fullWidth sx={{ mb: 2,  }}>
+          <InputLabel sx={{ color: 'lightgrey' }}>Musical Element</InputLabel>
+          <Select
+            value={selectedMusicalElement}
+            label="Musical Element"
+            onChange={(e) => setSelectedMusicalElement(e.target.value)}
+          >
+            <MenuItem value="melody">Melody</MenuItem>
+            <MenuItem value="harmony">Harmony</MenuItem>
+            <MenuItem value="rhythm">Rhythm</MenuItem>
+            <MenuItem value="texture">Texture</MenuItem>
+            <MenuItem value="dynamics">Dynamics</MenuItem>
+          </Select>
+        </FormControl>
+        <FormControl fullWidth sx={{ mb: 2 }}>
+          <InputLabel sx={{ color: 'lightgrey' }}>Instrument</InputLabel>
+          <Select
+            value={selectedInstrument}
+            label="Instrument"
+            onChange={(e) => setSelectedInstrument(e.target.value)}
+          >
+            <MenuItem value="piano">Piano</MenuItem>
+            <MenuItem value="guitar">Guitar</MenuItem>
+            <MenuItem value="violin">Violin</MenuItem>
+            <MenuItem value="drums">Drums</MenuItem>
+            <MenuItem value="synthesizer">Synthesizer</MenuItem>
+          </Select>
+        </FormControl>
+        <Button
+          variant="contained"
+          sx={{ backgroundColor: '#A1C75E', borderRadius: 20 }}
+          onClick={handleGenerateVideo}
+        >
+          Re-Generate with Custom Settings
+        </Button>
+      </CustomSettingsBox>
+    );
   };
 
   const handleDownloadVideo = () => {
@@ -249,13 +354,15 @@ const CreateMusicPage = () => {
           WebkitBackgroundClip: 'text',
           WebkitTextFillColor: 'transparent',
           textAlign: 'left',
-          width: '100%',
-          pl: 48,
+          width: '100%', 
+          display: 'flex',
+          justifyContent: 'center', 
         }}
       >
         Create Your Music
       </Typography>
       <Box sx={{ display: 'flex', width: '80%', justifyContent: 'space-between', px: 2, paddingBottom: '50px' }}>
+        {/* Before */}
         <Box sx={{  display: 'flex', flexDirection: 'column', pr: 2, alignItems: 'center', justifyContent: 'center' }}>
           <StyledTextField
             variant="outlined"
@@ -276,9 +383,30 @@ const CreateMusicPage = () => {
             </div>
           ) : (
             <GreyPlaceholder sx={{borderRadius: 5}}>
-              <Typography variant="h6">Video Preview</Typography>
+              <Typography variant="h6" >Video Preview</Typography>
+              {/* <DropzoneArea
+                acceptedFiles={['video/*']}
+                dropzoneText={"Drag and drop a video here or click"}
+                onDrop={(files) => console.log('Files:', files)}
+              /> */}
             </GreyPlaceholder>
           )}
+          <Typography variant="h4" 
+            sx={{
+              fontWeight: 'bold',
+              mt: 2,
+              mb: 2,
+              background: 'linear-gradient(45deg, #849567, white)',
+              WebkitBackgroundClip: 'text',
+              WebkitTextFillColor: 'transparent',
+              textAlign: 'left',
+              width: '30vw',
+              display: 'flex',
+              justifyContent: 'center',
+            }}
+            >
+            Before
+          </Typography>
           {previewUrl && (
             <div style={{ display: 'flex', justifyContent: 'center', flexDirection: 'row', gap: '10px' }}>
               <Button
@@ -298,6 +426,8 @@ const CreateMusicPage = () => {
             </div>
           )}
         </Box>
+        {showCustomSettings && renderCustomSettings()}
+        {/* After */}
         <Box sx={{ display: 'flex', flexDirection: 'column', pl: 2, pt: 7}}>
         {generatedVideoUrl ? (
             <div style={{ display: 'flex', justifyContent: 'center', flexDirection: 'column', gap: '10px' }}> 
@@ -320,6 +450,22 @@ const CreateMusicPage = () => {
               <Typography variant="h6">Generated Video</Typography>
             </GreyPlaceholder>
           )}
+          <Typography variant="h4" 
+            sx={{
+              fontWeight: 'bold',
+              mt: 2,
+              mb: 2,
+              background: 'linear-gradient(45deg, #849567, white)',
+              WebkitBackgroundClip: 'text',
+              WebkitTextFillColor: 'transparent',
+              textAlign: 'left',
+              width: '30vw',
+              display: 'flex',
+              justifyContent: 'center',
+            }}
+            >
+            After
+          </Typography>
         </Box>
       </Box>
     </Box>
