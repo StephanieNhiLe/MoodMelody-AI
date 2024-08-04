@@ -5,8 +5,8 @@ python-dotenv
 transformers
 scipy
 moviepy
-tf-keras
+sagemaker
+google-generativeai
+flask-cors
 tensorflow
-numpy
-torch
-torchaudio
+tf-keras
