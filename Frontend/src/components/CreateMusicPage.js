@@ -103,7 +103,7 @@ const CreateMusicPage = () => {
     formData.append('selectedInstrument', selectedInstrument);
   
     try {
-      const response = await axios.post(`${process.env.REACT_APP_BACKEND_URL}/getBGM`, formData, {
+      const response = await axios.post(`https://eb72-50-234-16-50.ngrok-free.app/getBGM`, formData, {
         headers: {
           'Content-Type': 'multipart/form-data'
         },
@@ -259,7 +259,7 @@ const CreateMusicPage = () => {
     formData.append('video', uploadedVideo);
   
     try {
-      const response = await axios.post(`${process.env.REACT_APP_BACKEND_URL}/analyze_sentiment`, formData, {
+      const response = await axios.post(`https://eb72-50-234-16-50.ngrok-free.app/analyze_sentiment`, formData, {
         headers: {
           'Content-Type': 'multipart/form-data'
         }
