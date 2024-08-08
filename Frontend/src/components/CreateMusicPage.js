@@ -398,7 +398,7 @@ const CreateMusicPage = () => {
             gap: '10px',
           }}
         >
-          <VideoPlaceholder sx={{ aspectRatio: videoAspectRatio }}>
+          <VideoPlaceholder sx={{ aspectRatio: videoAspectRatio, justifyContent: 'center' }}>
             <StyledVideo controls>
               <source src={previewUrl} type="video/mp4" />
               Your browser does not support the video tag.
@@ -479,13 +479,6 @@ const CreateMusicPage = () => {
               Your browser does not support the video tag.
             </StyledVideo>
           </VideoPlaceholder>
-          <Button
-            variant="contained"
-            sx={{ backgroundColor: '#A1C75E', alignSelf: 'end', mt: 6, borderRadius: 20 }}
-            onClick={handleDownloadVideo}
-          >
-            Download Video
-          </Button>
         </div>
       ) : (
         <GreyPlaceholder sx={{ borderRadius: 5 }}>
@@ -509,6 +502,13 @@ const CreateMusicPage = () => {
       >
         After
       </Typography>
+      <Button
+            variant="contained"
+            sx={{ backgroundColor: '#A1C75E', alignSelf: 'center', borderRadius: 20 }}
+            onClick={handleDownloadVideo}
+          >
+            Download Video
+          </Button>
     </Box>
   </Box>
 </Box>
