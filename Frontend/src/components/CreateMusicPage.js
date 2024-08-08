@@ -332,20 +332,87 @@ const CreateMusicPage = () => {
 
   return (
     <Box
+  sx={{
+    minHeight: '100vh',
+    bgcolor: '#0A1929',
+    color: 'white',
+    p: 0,
+    m: 0,
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+  }}
+>
+  <Header />
+  <Typography
+    variant="h2"
+    sx={{
+      fontWeight: 'bold',
+      mt: 2,
+      mb: 2,
+      background: 'linear-gradient(45deg, #849567, white)',
+      WebkitBackgroundClip: 'text',
+      WebkitTextFillColor: 'transparent',
+      textAlign: 'center', // Changed to center for better mobile view
+      width: '100%',
+      display: 'flex',
+      justifyContent: 'center',
+    }}
+  >
+    Create Your Music
+  </Typography>
+  <Box
+    sx={{
+      display: 'flex',
+      flexDirection: { xs: 'column', md: 'row' }, // Column for mobile, row for desktop
+      width: '80%',
+      justifyContent: 'space-between',
+      px: 2,
+      paddingBottom: '50px',
+    }}
+  >
+    {/* Before */}
+    <Box
       sx={{
-        minHeight: '100vh',
-        bgcolor: '#0A1929',
-        color: 'white',
-        p: 0,
-        m: 0,
         display: 'flex',
         flexDirection: 'column',
+        pr: { md: 2 }, // Padding right only on medium and up
         alignItems: 'center',
+        justifyContent: 'center',
+        mb: { xs: 4, md: 0 }, // Margin bottom for mobile
       }}
     >
-      <Header />
+      <StyledTextField
+        variant="outlined"
+        type="file"
+        InputLabelProps={{ shrink: true }}
+        fullWidth
+        onChange={handleFileChange}
+      />
+      {previewUrl ? (
+        <div
+          style={{
+            display: 'flex',
+            justifyContent: 'center',
+            flexDirection: 'column',
+            gap: '10px',
+          }}
+        >
+          <VideoPlaceholder sx={{ aspectRatio: videoAspectRatio }}>
+            <StyledVideo controls>
+              <source src={previewUrl} type="video/mp4" />
+              Your browser does not support the video tag.
+            </StyledVideo>
+          </VideoPlaceholder>
+          {renderSentimentResult()}
+        </div>
+      ) : (
+        <GreyPlaceholder sx={{ borderRadius: 5 }}>
+          <Typography variant="h6">Video Preview</Typography>
+        </GreyPlaceholder>
+      )}
       <Typography
-        variant="h2"
+        variant="h4"
         sx={{
           fontWeight: 'bold',
           mt: 2,
@@ -353,122 +420,99 @@ const CreateMusicPage = () => {
           background: 'linear-gradient(45deg, #849567, white)',
           WebkitBackgroundClip: 'text',
           WebkitTextFillColor: 'transparent',
-          textAlign: 'left',
-          width: '100%', 
+          textAlign: 'center', // Changed to center for better mobile view
+          width: { xs: '100%', md: '30vw' }, // Full width on mobile
           display: 'flex',
-          justifyContent: 'center', 
+          justifyContent: 'center',
         }}
       >
-        Create Your Music
+        Before
       </Typography>
-      <Box sx={{ display: 'flex', width: '80%', justifyContent: 'space-between', px: 2, paddingBottom: '50px' }}>
-        {/* Before */}
-        <Box sx={{  display: 'flex', flexDirection: 'column', pr: 2, alignItems: 'center', justifyContent: 'center' }}>
-          <StyledTextField
-            variant="outlined"
-            type="file"
-            InputLabelProps={{ shrink: true }}
-            fullWidth
-            onChange={handleFileChange}
-          />
-          {previewUrl ? (
-            <div style={{ display: 'flex', justifyContent: 'center', flexDirection: 'column', gap: '10px' }}>
-            <VideoPlaceholder sx={{ aspectRatio: videoAspectRatio }}>
-              <StyledVideo controls >
-                <source src={previewUrl} type="video/mp4" />
-                Your browser does not support the video tag.
-              </StyledVideo>
-            </VideoPlaceholder>
-            {renderSentimentResult()}
-            </div>
-          ) : (
-            <GreyPlaceholder sx={{borderRadius: 5}}>
-              <Typography variant="h6" >Video Preview</Typography>
-              {/* <DropzoneArea
-                acceptedFiles={['video/*']}
-                dropzoneText={"Drag and drop a video here or click"}
-                onDrop={(files) => console.log('Files:', files)}
-              /> */}
-            </GreyPlaceholder>
-          )}
-          <Typography variant="h4" 
-            sx={{
-              fontWeight: 'bold',
-              mt: 2,
-              mb: 2,
-              background: 'linear-gradient(45deg, #849567, white)',
-              WebkitBackgroundClip: 'text',
-              WebkitTextFillColor: 'transparent',
-              textAlign: 'left',
-              width: '30vw',
-              display: 'flex',
-              justifyContent: 'center',
-            }}
-            >
-            Before
-          </Typography>
-          {previewUrl && (
-            <div style={{ display: 'flex', justifyContent: 'center', flexDirection: 'row', gap: '10px' }}>
-              <Button
-                variant="contained"
-                sx={{ backgroundColor: '#9179a3', alignSelf: 'end', mt: 2, borderRadius: 20 }}
-                onClick={handleSentimentAnalysis}
-              >
-                Mood Detector
-              </Button>
-              <Button
-                variant="contained"
-                sx={{ backgroundColor: '#A1C75E', alignSelf: 'end', mt: 2, borderRadius: 20 }}
-                onClick={handleGenerateVideo}
-              >
-                Generate Video
-              </Button>
-            </div>
-          )}
-        </Box>
-        {showCustomSettings && renderCustomSettings()}
-        {/* After */}
-        <Box sx={{ display: 'flex', flexDirection: 'column', pl: 2, pt: 7}}>
-        {generatedVideoUrl ? (
-            <div style={{ display: 'flex', justifyContent: 'center', flexDirection: 'column', gap: '10px' }}> 
-              <VideoPlaceholder sx={{ aspectRatio: videoAspectRatio }}>
-                <StyledVideo key={generatedVideoUrl} controls >
-                  <source src={generatedVideoUrl} type="video/mp4" />
-                  Your browser does not support the video tag.
-                </StyledVideo>
-              </VideoPlaceholder>
-              <Button
-                variant="contained"
-                sx={{ backgroundColor: '#A1C75E', alignSelf: 'end', mt: 6, borderRadius: 20 }}
-                onClick={handleDownloadVideo}
-              >
-                Download Video
-              </Button>
-            </div>
-          ) : (
-            <GreyPlaceholder sx={{ borderRadius: 5}}>
-              <Typography variant="h6">Generated Video</Typography>
-            </GreyPlaceholder>
-          )}
-          <Typography variant="h4" 
-            sx={{
-              fontWeight: 'bold',
-              mt: 2,
-              mb: 2,
-              background: 'linear-gradient(45deg, #849567, white)',
-              WebkitBackgroundClip: 'text',
-              WebkitTextFillColor: 'transparent',
-              textAlign: 'left',
-              width: '30vw',
-              display: 'flex',
-              justifyContent: 'center',
-            }}
-            >
-            After
-          </Typography>
-        </Box>
-      </Box>
+      {previewUrl && (
+        <div
+          style={{
+            display: 'flex',
+            justifyContent: 'center',
+            flexDirection: { xs: 'column', md: 'row' }, // Column for mobile, row for desktop
+            gap: '10px',
+          }}
+        >
+          <Button
+            variant="contained"
+            sx={{ backgroundColor: '#9179a3', alignSelf: 'end', mt: 2, borderRadius: 20 }}
+            onClick={handleSentimentAnalysis}
+          >
+            Mood Detector
+          </Button>
+          <Button
+            variant="contained"
+            sx={{ backgroundColor: '#A1C75E', alignSelf: 'end', mt: 2, borderRadius: 20 }}
+            onClick={handleGenerateVideo}
+          >
+            Generate Video
+          </Button>
+        </div>
+      )}
     </Box>
+    {showCustomSettings && renderCustomSettings()}
+    {/* After */}
+    <Box
+      sx={{
+        display: 'flex',
+        flexDirection: 'column',
+        pl: { md: 2 }, // Padding left only on medium and up
+        pt: { md: 7 }, // Padding top only on medium and up
+      }}
+    >
+      {generatedVideoUrl ? (
+        <div
+          style={{
+            display: 'flex',
+            justifyContent: 'center',
+            flexDirection: 'column',
+            gap: '10px',
+          }}
+        >
+          <VideoPlaceholder sx={{ aspectRatio: videoAspectRatio }}>
+            <StyledVideo key={generatedVideoUrl} controls>
+              <source src={generatedVideoUrl} type="video/mp4" />
+              Your browser does not support the video tag.
+            </StyledVideo>
+          </VideoPlaceholder>
+          <Button
+            variant="contained"
+            sx={{ backgroundColor: '#A1C75E', alignSelf: 'end', mt: 6, borderRadius: 20 }}
+            onClick={handleDownloadVideo}
+          >
+            Download Video
+          </Button>
+        </div>
+      ) : (
+        <GreyPlaceholder sx={{ borderRadius: 5 }}>
+          <Typography variant="h6">Generated Video</Typography>
+        </GreyPlaceholder>
+      )}
+      <Typography
+        variant="h4"
+        sx={{
+          fontWeight: 'bold',
+          mt: 2,
+          mb: 2,
+          background: 'linear-gradient(45deg, #849567, white)',
+          WebkitBackgroundClip: 'text',
+          WebkitTextFillColor: 'transparent',
+          textAlign: 'center', // Changed to center for better mobile view
+          width: { xs: '100%', md: '30vw' }, // Full width on mobile
+          display: 'flex',
+          justifyContent: 'center',
+        }}
+      >
+        After
+      </Typography>
+    </Box>
+  </Box>
+</Box>
+
   );
 };
 
