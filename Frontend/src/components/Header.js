@@ -18,17 +18,26 @@ const Header = () => {
 
   const list = () => (
     <Box
-      sx={{ width: 250 }}
+      sx={{ 
+        width: 250, 
+        bgcolor: '#0A1929', // Background color of the drawer
+        height: '100%',
+        color: 'white', // Text color in the drawer
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center', // Center align the text
+        pt: 4 // Padding from the top
+      }}
       role="presentation"
       onClick={toggleDrawer(false)}
       onKeyDown={toggleDrawer(false)}
     >
       <List>
-        <ListItem button component="a" href="/">
-          <ListItemText primary="Home" />
+        <ListItem button component="a" href="/" sx={{ justifyContent: 'center' }}>
+          <ListItemText primary="Home" sx={{ textAlign: 'center', color: 'white', pt: 3 }} />
         </ListItem>
-        <ListItem button component="a" href="/create-music">
-          <ListItemText primary="Create" />
+        <ListItem button component="a" href="/create-music" sx={{ justifyContent: 'center' }}>
+          <ListItemText primary="Create" sx={{ textAlign: 'center', color: 'white', pt: 3}} />
         </ListItem>
       </List>
     </Box>
@@ -69,4 +78,3 @@ const Header = () => {
 };
 
 export default Header;
-
